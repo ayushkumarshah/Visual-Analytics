@@ -1,0 +1,270 @@
+---
+# This is a sample homework iii starter file. You need to do more than this for full credit.
+# At least you should fill in all the places with parentheses for a B and use your imagination to add more for an A.
+# render this file by saying
+#   library(rmarkdown)
+#   render("ii.Rmd",pdf_document(latex_engine="xelatex"))
+# at the R console
+title: 'homework iii'
+author: 'Ayush Kumar Shah'
+date: '2020-09-22'
+output:
+    pdf_document:
+    latex_engine: xelatex
+header-includes:
+  \usepackage{booktabs}
+---
+
+```{r echo=FALSE}
+# This chunk is just to make it possible to shrink the typeface in succeeding chunks. Mainly this will be used for the crosstabs.
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+```
+
+
+# Introduction
+In this report, we try to explore the nyc311 data and find answers about the 
+data. Some of the questions we try to answer in this exploration are:
+
+- What are the most frequent categories of complaints?
+- How is the frequent complaint categories distributed across different Boroughs?
+- How does the overall status of the complaints vary across different categories?
+- What are the status of the most frequent complaint categories?
+- Which agencies are the top 10 largest responding City Government Agencies?
+
+We perform various transformations to the data using the `dplyr` package to
+answer these queries. We also use `ggplot` to visualize the results and also the
+distributions of different variables of the data.
+
+# Initialization
+Here we load the tidyverse packages and the `data.table` package and load the nyc311 data set. Then we fix the column names of the nyc311 data so that they have no spaces.
+
+```{r initialize}
+library(tidyverse)
+library(data.table)
+nyc311<-fread("311_Service_Requests_from_2010_to_Present.csv")
+names(nyc311)<-names(nyc311) %>%
+stringr::str_replace_all("\\s", ".")
+mini311<-nyc311[sample(nrow(nyc311),10000),]
+write.csv(mini311,"mini311.csv")
+```
+
+# Working with maps
+## Reading the saved shorter sample of the data 
+This is done since original data has too many points to visualize.
+
+```{r readmini}
+sample<-fread("mini311.csv")
+```
+
+## Selecting a single complaint type "Noise"
+```{r selection}
+complaintlocs <- sample %>%
+  select(Complaint.Type,
+    Longitude,
+    Latitude
+  )
+noisecompl <- complaintlocs %>%
+  filter(Complaint.Type == "Noise")
+```
+
+## Displaying the map
+```{r generatemap}
+library(ggmap)
+key <- "api_key"
+register_google(key=key)
+nyc_map <- get_map(location=c(lon=-73.9,lat=40.75),
+		   maptype="terrain",zoom=10)
+map <- ggmap(nyc_map) +
+  geom_point(data=noisecompl,aes(x=Longitude,y=Latitude),
+	     size=0.4,alpha=0.2,color="red") +
+  ggtitle("Map of Sample") +
+  theme(plot.title=element_text(hjust=0.5)) +
+  xlab("Longitude") + ylab("Latitude")
+map
+```
+
+# Most frequent Complaint Categories
+
+Let's view the Top 10 most frequent categories of the complaints registered 
+along with the count and count %.
+
+```{r top10_complaints}
+top10_complaints <- 
+  nyc311 %>%
+  group_by(Complaint.Type) %>%
+  summarize(count = n()) %>%
+  mutate(rank = min_rank(desc(count)),
+         'proportion in %' = count / sum(count) * 100) %>%
+  filter(rank <= 10) %>%
+  arrange(rank) %>%
+  select(-rank)
+
+top10_complaints
+```
+
+## Pie chart of the most frequent complaint categiories
+
+Let's plot the counts generated above in a pie chart.
+
+```{r top10_complaints_plot}
+top10_complaints_plot <- 
+  ggplot(top10_complaints, aes(x="", y=count, fill=Complaint.Type)) +
+  geom_bar(stat = "identity") +
+  coord_polar("y", start=0)
+
+top10_complaints_plot
+```
+
+# Most freqeuent Complaint Categories Count across different Boroughs
+
+Now, let's view the counts of the top 10 frequent complain categories 
+across different Boroughs using a facet plot.
+
+```{r complaint_boroughs}
+complaint_types <- nyc311 %>%
+  group_by(Complaint.Type, Borough) %>%
+  summarize(Complaints = n()) %>%
+  filter(Complaint.Type %in% top10_complaints$Complaint.Type,
+         Borough != 'Unspecified')
+
+ct_borough <- ggplot(complaint_types) + 
+  geom_bar(stat="identity", 
+           aes(x=Complaint.Type, y=Complaints, fill=Complaint.Type),
+           show.legend = FALSE) + 
+  facet_wrap(~ Borough) +
+  coord_flip() +
+  xlab("Complaint Type") +
+  ggtitle("Top 10 Complaints Count by Category across different Boroughs")
+
+ct_borough
+```
+## Visualizing using geom_tile
+
+```{r geom_tile1}
+nyc311 %>%
+  filter(Complaint.Type %in% top10_complaints$Complaint.Type,
+          Borough != 'Unspecified') %>%
+  count(Complaint.Type, Borough) %>%
+  ggplot(mapping = aes(x = Borough, y = Complaint.Type)) +
+  geom_tile(mapping = aes(fill = n))
+
+```
+
+# Status of complaints
+
+## Overall status of the complaints
+
+```{r status}
+nyc311 %>% 
+  group_by(Status)%>%
+  summarize(count = n()) %>%
+  arrange(desc(count))
+```
+
+```{r status_plot}
+ggplot(data = nyc311, aes(x = Status, fill=Status)) +
+  geom_bar(show.legend = FALSE) +
+  coord_cartesian(ylim = c(0, 1)) +
+  coord_flip() 
+```
+We can see that most of the status categories have very few count. So, we only
+consider the 3 major categories for analysis further.
+
+## Status of the top 10 frequent complaint categories
+
+We are only interested in the 3 major status of the most frequent complaint
+categories.
+
+```{r status_complaints}
+status_complaints <- 
+  nyc311 %>% 
+  group_by(Complaint.Type, Status) %>%
+  summarize(Complaints = n()) %>%
+  filter(Complaint.Type %in% top10_complaints$Complaint.Type,
+         Status %in% c('Open', 'Closed', 'Pending'))
+
+## Plotting the status of complaints
+status_complaints_plot <- ggplot(status_complaints) + 
+  geom_bar(stat="identity", 
+           aes(x=Complaint.Type, y=Complaints, fill=Complaint.Type),
+           show.legend = FALSE) + 
+  facet_wrap(~ Status) +
+  coord_flip() +
+  xlab("Complaint Type") +
+  ggtitle("Status of Top 10 Complaints Count by Category")
+
+status_complaints_plot
+```
+
+## Visualizing using geom_tile
+
+```{r geom_tile2}
+nyc311 %>%
+  filter(Complaint.Type %in% top10_complaints$Complaint.Type,
+         Status %in% c('Open', 'Closed', 'Pending')) %>%
+  count(Complaint.Type, Status) %>%
+  ggplot(mapping = aes(x = Status, y = Complaint.Type)) +
+  geom_tile(mapping = aes(fill = n))
+
+```
+Hence, we can see that among the top 10 complaints category, most of them are 
+closed with a very few pending cases.
+
+## Visualizing using box_plot
+
+```{r box_plot}
+nyc311 %>%
+  filter(Complaint.Type %in% top10_complaints$Complaint.Type,
+         Status %in% c('Open', 'Closed', 'Pending')) %>%
+  ggplot(mapping = aes(x = Status, y = Complaint.Type)) +
+  geom_boxplot()
+
+```
+
+# Top 10 Largest Responding City Government Agencies
+
+We find out the top 10 city government agencies in terms of the largest
+Service Requests (SR) with the count and proportion count (in percentage).
+
+```{r largest_agencies}
+bigAgency <- nyc311 %>%
+  group_by(Agency) %>%
+  summarize(complaints_count=n()) %>%
+  mutate(rank = min_rank(desc(complaints_count)),
+         'proportion in %' = complaints_count / sum(complaints_count) * 100) %>%
+  filter(rank <= 10) %>%
+  arrange(rank) %>%
+  select(-rank)
+
+bigAgency
+
+```
+
+Then we visualize it using a bar chart.
+
+```{r plot_largest_agencies}
+bigAgency$Agency<-factor(bigAgency$Agency,
+  levels=bigAgency$Agency[order(bigAgency$complaints_count)])
+
+p<-ggplot(bigAgency,aes(x=Agency,y=complaints_count, fill=Agency)) +
+   geom_bar(stat="identity", show.legend = FALSE) +
+   coord_flip()
+p
+```
+
+# Conclusion
+
+Hence, we applied exploratory data analysis on the `nyc311` data using various
+data transformation and visualization techniques. We were able to answer several
+questions about the data like:
+
+- There are only 3 important status of complaints to consider in the data.
+- There is a wide variance of the top complaint categories across different 
+Boroughs.
+- Among the top 10 complaints category, most of them are closed with a very few 
+pending cases.
+

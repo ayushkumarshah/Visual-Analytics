@@ -1,0 +1,53 @@
+---
+# This is a sample homework iii starter file. You need to do more than this for full credit.
+# At least you should fill in all the places with parentheses for a B and use your imagination to add more for an A.
+# render this file by saying
+#   library(rmarkdown)
+#   render("ii.Rmd",pdf_document(latex_engine="xelatex"))
+# at the R console
+title: 'homework iii'
+author: 'Ayush Kumar Shah'
+date: '2020-10-22'
+output:
+    pdf_document:
+    latex_engine: xelatex
+header-includes:
+  \usepackage{booktabs}
+---
+
+```{r echo=FALSE}
+# This chunk is just to make it possible to shrink the typeface in succeeding chunks. Mainly this will be used for the crosstabs.
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+```
+
+
+# Introduction
+(Introductory text should go here.)
+
+# Initialization
+Here we load the tidyverse packages and the `data.table` package and load the nyc311 data set. Then we fix the column names of the nyc311 data so that they have no spaces.
+
+```{r initialize}
+library(tidyverse)
+library(data.table)
+nyc311<-fread("311_Service_Requests_from_2010_to_Present.csv")
+names(nyc311)<-names(nyc311) %>%
+  stringr::str_replace_all("\\s", ".")
+mini311<-nyc311[sample(nrow(nyc311),10000),]
+write.csv(mini311,"mini311.csv")
+```
+
+```{r mapprep}
+install.packages("devtools",dependencies=TRUE, 
+                 repos = "http://cran.us.r-project.org",
+                 force = TRUE)
+library(devtools)
+if(!require("ggmap")) {
+devtools::install_github("dkahle/ggmap", ref = "tidyup", force=TRUE)
+}
+```
+
