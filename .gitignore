@@ -45,6 +45,16 @@ videos/*
 # Large books
 books/Garner2009.pdf
 
+# Licensed books
+books/Adler2012.pdf
+books/Bertin1984part1.pdf
+books/Mendenhall2012.pdf
+books/Mendenhall2012a.pdf
+books/Nolan2015.pdf
+books/Wickham2010.pdf
+books/Wickham2016.pdf
+books/Wilkinson2005.pdf
+
 # Large data
 *.csv
 *.mp4
