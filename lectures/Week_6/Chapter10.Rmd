@@ -1,0 +1,77 @@
+---
+title: "Chapter10"
+author: "Ayush Kumar Shah"
+date: "10/2/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Relational Data
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+```{r}
+?airports
+?planes
+?flights
+?weather
+?airlines
+```
+
+# 3 purposes of verbs
+
+- mutating joins: add new variables to one data frame from matching observations in another.
+- filtering joins: filter observations from one data frame
+  based on whether or not they match an observation in the other
+  table.
+- set operations: which treat observations as if they were set
+  elements.
+
+# Primary key and Foreign Key
+## Checking if the key uniquely identifies observations:
+
+```{r}
+planes %>%
+  count(tailnum) %>%
+  filter(n > 1)
+
+weather %>%
+count(year, month, day, hour, origin) %>%
+filter(n > 1)
+```
+
+# 1. Mutating joins
+
+- inner join `r inner_join(x, y, by="key")` : by is optional
+- left outer join: `r left_join(x, y, by="key")` : by is optional
+- right outer join `r right_join(x, y, by="key")` : by is optional
+- full outer join `r full_join(x, y, by="key")` : by is optional
+
+By:
+- Default: by = NULL (i.e. all columns with matching names in both tables)
+- by = "somename"
+- by = c("a" = "b")
+
+# 2. Filtering joins
+
+- `r semi_join(x, y)` - Keep all observations in x that have a match in y
+- `r anti_join(x,y)` - Drop all observations in x that have a match in y
+
+Affect rows rather than columns.
+
+# 3. Set operations
+
+- `r intersect(x, y)` - only observations in both x and y
+- `r union(x, y)` - unique observations in x any y
+- `r setdiff(x, y)` - observations in x but not in y
+
+Treat the rows (observations) like elements in set.
+
+DIfference from mutating joins: whole row is considered.
+

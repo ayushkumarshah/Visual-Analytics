@@ -1,0 +1,428 @@
+---
+title: "Chapter 11"
+author: "Ayush Kumar Shah"
+date: "10/2/2020"
+output:
+  html_document:
+    df_print: paged
+always_allow_html: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Strings and regular expressions with stringr
+
+```{r}
+library(tidyverse)
+library(stringr)
+```
+
+# Defining strings
+
+```{r}
+(string1 <- "This is a string")
+(string2 <- 'To put a "quote" inside a string, use single quotes')
+(string3 <- "To put a \"quote\" inside a string, use single quotes")
+(string4 <- "To put a \'quote\' inside a string, use single quotes")
+```
+
+# To see the raw string:
+
+```{r}
+writeLines(string1)
+writeLines(string2)
+writeLines(string3)
+writeLines(string4)
+```
+
+## Special characters
+```{r}
+?'"'
+# OR
+?"'"
+```
+
+# Functions
+
+- basic: 39 string functions beginning with str_ 
+- advanced: about 200 functions starting with stri_
+
+## String Length
+
+```{r}
+str_length(c("a", "R for data science", NA))
+```
+
+## Combining Strings
+
+```{r}
+str_c("x", "y", "z")
+#> [1] "xyz"
+str_c("x", "y", sep = ", ")
+
+x <- c("abc", NA)
+str_c("|-", x, "-|")
+
+str_c("|-", c("abc", "def"), "-|")
+
+str_c("|-", str_replace_na(x), "-|")
+```
+
+## Vectors of strings
+
+```{r}
+c("x", "y", "z")
+str_c(c("x", "y", "z"))
+str_c(c("x", "y", "z"), collapse="")
+str_c(c("x", "y", "z"), collapse=",")
+str_c(c("x", "y", "z"), c("a", "b", "c"))
+str_c(c("x", "y", "z"), c("a", "b", "c"), collapse="")
+
+```
+
+## If inside str_c
+```{r}
+name <- "Hadley"
+time_of_day <- "morning"
+birthday <- FALSE
+str_c(
+"Good ", time_of_day, " ", name,
+if (birthday) " and HAPPY BIRTHDAY",
+"."
+)
+```
+
+## Substrings
+
+```{r}
+x <- c("Apple", "Banana", "Pear")
+str_sub(x, 1, 3)
+str_sub(x, -3, -1)
+str_sub(x, 1, 1) <- str_to_lower(str_sub(x, 1, 1))
+x
+```
+
+## Locales
+
+```{r}
+str_to_upper(c("i", "ı"))
+#> [1] "I" "I"
+str_to_upper(c("i", "ı"), locale = "tr")
+```
+
+## Regular expressions
+
+`str_view` requires htmlwidgets and its dependencies.
+
+```{r}
+# install.packages("htmlwidgets", dependencies = TRUE)
+library(htmlwidgets)
+```
+
+```{r}
+x <- c("apple", "banana", "pear")
+str_view(x, "an")
+str_view(x, ".a.")
+```
+. matches any character expect enw line.
+**Note: ana doesn't match since (no overlapping)**
+
+```{r}
+str_view(c("abc", "a.c", "bef"), "a\\.c")
+```
+
+```{r}
+(x <- "a\\b")
+writeLines(x)
+str_view(x, "\\\\")
+```
+
+- ^ to match the start of the string.
+- • $ to match the end of the string.
+
+```{r}
+x <- c("apple", "banana", "pear")
+str_view(x, "^a")
+str_view(x, "a$")
+x <- c("apple pie", "apple", "apple cake")
+str_view(x, "^apple$")
+```
+
+
+### Chaacter class and alternatives
+
+- \d matches any digit.
+- \s matches any whitespace (e.g., space, tab, newline).
+- [abc] matches a, b, or c.
+- [^abc] matches anything except a, b, or c.
+- a | b means a or b, where a and b are strings.
+
+```{r}
+str_view(c("grey", "gray"), "gr(e|a)y")
+```
+### Repetitions
+- ? - 0 or 1
+- + - 1 or more
+- * - 0 or more
+- {n} - exactly n
+- {n, } - n or more
+- {, m} - nat most m
+- {n, m} - between n and m
+
+```{r}
+x <- "1888 is the longest year in Roman numerals: MDCCCLXXXVIII"
+str_view(x, "CC?")
+str_view(x, "CC+")
+str_view(x, 'C[LX]+')
+str_view(x, "C{2}")
+str_view(x, "C{2,}")
+str_view(x, "C{2,3}")
+```
+
+By default these matches are “greedy”: they will match the longest
+string possible. You can make them “lazy,” matching the shortest
+string possible, by putting a ? after them. This is an advanced feature
+of regular expressions, but it’s useful to know that it exists:
+
+```{r}
+str_view(x, "C{2,3}?")
+str_view(x, 'C[LX]+?')
+```
+
+### Groups
+
+Example: all fruits that have a repeated pair of letters:
+
+```{r}
+fruit
+str_view(fruit, "(..)\\1", match = TRUE)
+```
+
+## Use of regular expressions
+
+- Determine which strings match a pattern.
+- Find the positions of matches.
+- Extract the content of matches.
+- Replace matches with new values.
+- Split a string based on a match.
+
+### Detect matches
+
+```{r}
+x <- c("apple", "banana", "pear")
+str_detect(x, "e")
+```
+
+Number of words starting with t
+```{r}
+sum(str_detect(words, "^t"))
+```
+
+What proportion of common words end with a vowel?
+```{r}
+mean(str_detect(words, "[aeiou]$"))
+```
+
+
+Words without vowels : 2 ways
+
+```{r}
+# Find all words containing at least one vowel, and negate
+no_vowels_1 <- !str_detect(words, "[aeiou]")
+# Find all words consisting only of consonants (non-vowels)
+no_vowels_2 <- str_detect(words, "^[^aeiou]+$")
+identical(no_vowels_1, no_vowels_2)
+
+str_subset(words, "^[^aeiou]+$")
+
+# this fails
+# !str_subset(words, "[aeiou]")
+```
+
+### Subset using RE (str_subset)
+
+Equivalent to str_detect plus indexing
+
+```{r}
+words[str_detect(words, "x$")]
+#> [1] "box" "sex" "six" "tax"
+str_subset(words, "x$")
+#> [1] "box" "sex" "six" "tax"
+```
+
+### In tibbles
+
+```{r}
+df <- tibble(
+word = words,
+i = seq_along(word)
+)
+df %>%
+filter(str_detect(words, "x$"))
+```
+
+`seq_along` - position of the word in the list.
+
+### Count
+
+**Note: Every operation involves non overlapping matches**
+
+```{r}
+x <- c("apple", "banana", "pear")
+str_count(x, "a")
+str_count(x, "ana")
+```
+
+Number of vowels per word:
+
+```{r}
+mean(str_count(words, "[aeiou]"))
+```
+
+With mutate
+
+```{r}
+df %>%
+mutate(
+vowels = str_count(word, "[aeiou]"),
+consonants = str_count(word, "[^aeiou]")
+)
+```
+
+
+### Reminder: Matches never overlap
+
+```{r}
+str_count("abababa", "aba")
+str_view("abababa", "aba")
+str_view_all("abababa", "aba")
+```
+
+
+### Extract Matches
+
+Sentences (comes with `stringr` package)
+
+```{r}
+length(sentences)
+head(sentences)
+```
+
+Colors
+
+```{r}
+colors <- c(
+"red", "orange", "yellow", "green", "blue", "purple"
+)
+color_match <- str_c(colors, collapse = "|")
+color_match
+```
+
+Since red may be in another word like ordered, add boundary in pattern
+
+```{r}
+(color_words <- str_c("\\b" , colors, "\\b", collapse="|"))
+```
+
+Color matches
+
+```{r}
+has_color <- str_subset(sentences, color_words)
+matches <- str_extract(has_color, color_words)
+head(matches)
+```
+
+
+Sentences wtih 2 colour words.
+```{r}
+more <- sentences[str_count(sentences, color_words) > 1]
+str_view_all(more, color_match)
+```
+
+
+```{r}
+str_extract(more, color_match)
+
+str_extract_all(more, color_match)
+```
+
+
+### str_match()
+
+Use spacy in Python instead for NLP
+
+```{r}
+noun <- "(a|the) ([^ ]+)"
+has_noun <- sentences %>%
+str_subset(noun) %>%
+head(10)
+has_noun %>%
+str_extract(noun)
+```
+
+```{r}
+has_noun %>%
+str_match(noun)
+```
+
+
+Using tibbles
+
+```{r}
+tibble(sentence = sentences) %>%
+tidyr::extract(
+sentence, c("article", "noun"), "(a|the) ([^ ]+)",
+remove = FALSE
+)
+```
+
+
+### Replace (str_replace)
+
+```{r}
+x <- c("apple", "pear", "banana")
+str_replace(x, "[aeiou]", "-")
+#> [1] "-pple" "p-ar" "b-nana"
+
+str_replace_all(x, "[aeiou]", "-")
+
+x <- c("1 house", "2 cars", "3 people")
+str_replace_all(x, c("1" = "one", "2" = "two", "3" = "three"))
+```
+
+
+Using backreferences to insert components of the match
+
+Swapping 2nd and 3rd words in each sentence.
+
+```{r}
+
+sentences %>%
+str_replace("([^ ]+) ([^ ]+) ([^ ]+)", "\\1 \\3 \\2") %>%
+head(5)
+```
+
+
+### Splittin (str_split)
+
+```{r}
+sentences %>%
+head(5) %>%
+str_split(" ")
+```
+
+To matrix
+
+```{r}
+sentences %>%
+head(5) %>%
+str_split(" ", simplify = TRUE)
+```
+
+Split n times
+```{r}
+fields <- c("Name: Hadley", "Country: NZ", "Age: 35")
+fields %>% str_split(": ", n = 2, simplify = TRUE)
+```

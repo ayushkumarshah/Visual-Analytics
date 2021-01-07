@@ -1,0 +1,87 @@
+---
+title: "Chapter8"
+author: "Ayush Kumar Shah"
+date: "9/23/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Chapter 8 Data import with readr
+
+- readr is imported with tidyverse
+
+- functions in readr
+  - read_csv()
+  - read_tsv()
+  - read_delim() (any delimiter)
+  - read_fwf() (fixed width file)
+
+```{r}
+library(tidyverse)
+```
+
+## Rad_csv
+
+read_csv different from read.csv of R.
+
+```{r}
+# heights <- read_csv("data/heights.csv")
+#> Parsed with column specification:
+#> cols(
+#> earn = col_double(),
+#> height = col_double(),
+#> sex = col_character(),
+#> ed = col_integer(),
+#> age = col_integer(),
+#> race = col_character()
+#> )
+```
+
+## Inline tables
+```{r}
+read_csv("a,b,c
+1,2,3
+4,5,6")
+```
+
+## Documenting the data
+
+```{r}
+read_csv("The first line of metadata
+The second line of metadata
+x,y,z
+1,2,3", skip = 2)
+```
+
+
+```{r}
+read_csv("# A comment I want to skip
+x,y,z
+1,2,3", comment = "#")
+```
+
+Give default names to columns
+
+```{r}
+read_csv("1,2,3\n4,5,6", col_names = FALSE)
+```
+
+Pass col names
+```{r}
+read_csv("1,2,3\n4,5,6", col_names = c("x", "y", "z"))
+```
+
+Missing data
+```{r}
+read_csv("a,b,c\n1,2,.", na = ".")
+```
+
+## Advantages compared to R's read.csv
+
+- Faster (10x), progress bar.
+- produce tibbles.
+- more reproducible across all type of systems.
+

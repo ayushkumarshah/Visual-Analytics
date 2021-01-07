@@ -1,0 +1,95 @@
+---
+title: "landscape printing"
+author: "Fatima AlShamsi and Noura Hussain"
+date: "1/29/2020"
+output:
+  pdf_document:
+    latex_engine: xelatex
+header-includes:
+  \usepackage{lscape,tabularx,booktabs}
+papersize: a4
+---
+
+The following table (a very good data dictionary, by the way) prints in landscape. It uses two functions to make the table fit on one page. The first is `kable_styling()`, which is used to control the font size. The second is `column_spec()`, which, in this case, controls the width of column 2, so that long text wraps. If you don't include `column_spec()` for a given column, the width is automatically set by the width of the widest entry in the column.
+
+```{r initialize, echo=FALSE}
+library(tidyverse)
+library(data.table)
+library(kableExtra)
+```
+
+```{r data-dictionary, echo=FALSE}
+nyc311_info <- tribble( 
+  ~Indicator,  ~ Description,  ~ DataType,
+  "`Unique Key`"   , "Unique identifier of a Service Request (SR) in the open data set" 
+  , "Text",  
+  "`Created Date`" , "Date SR was created", "Floating Timestamp",
+  "`Closed Date`"  , "Date SR was closed by responding agency", "Floating Timestamp",
+  "`Agency`"       , "Acronym of responding City Government Agency" , "Text",
+  "`Agency Name`"  , "Full Agency name of responding City Government Agency", "Text",
+  "`Complaint Type`","This is the first level of a hierarchy identifying the topic of 
+                      the incident or condition.Complaint Type may have a corresponding
+                      Descriptor (below) or may stand alone." , "Text",
+  "`Descriptor`"   ,"This is associated to the Complaint Type, and provides further 
+                     detail on the incident or condition.Descriptor values are dependent
+                     on the Complaint Type, and are not always required in SR." , "Text",
+  "`Location Type`","Describes the type of location used in the address information", "Text",
+  "`Incident Zip`" ,"Incident location zip code, provided by geo validation.", "Text",
+  "`Incident Address`","House number of incident address provided by submitter.", "Text",
+  "`Street Name`"  ,"Street name of incident address provided by the submitter" , "Text",
+  "`Cross Street 1`", "First Cross street based on the geo validated incident location", "Text",
+  "`Cross Street 2`", "Second Cross Street based on the geo validated incident location" , "Text",
+  "`Intersection Street 1`", "First intersecting street based on geo validated 
+                              incident location" , "Text",
+  "`Intersection Street 2`", "Second intersecting street based on geo validated 
+                              incident location", "Text",
+  "`Address Type`","Type of incident location information available." , "Text",
+  "`City`"        , "City of the incident location provided by geovalidation.", "Text",
+  "`Landmark`"    , "If the incident location is identified as a Landmark the name of
+                     the landmark will display here", "Text",
+  "`Facility Type`", "If available, this field describes the type of city facility
+                      associated to the SR"  , "Text",
+  "`Status`"      , "Status of SR submitted", "Text",
+  "`Due Date`"    , "Date when responding agency is expected to update the SR. 
+                     This is based on the Complaint Type and internal Service Level 
+                     Agreements (SLAs).", "Floating Timestamp",
+  "`Resolution Description`", "Describes the last action taken on the SR by the 
+                               responding agency. May describe next or future steps.","Text",
+  "`Resolution Action Updated Date`", "Date when responding agency last updated the SR."
+  ,  "Floating Timestamp",
+  "`Community Board`", "Provided by geovalidation." ,  "Text",
+  "`Borough`", "Provided by the submitter and confirmed by geovalidation." ,  "Text",
+  "`X Coordinate (State Plane)`", "Geo validated, X coordinate of the incident location." 
+  ,  "Number",
+  "`Y Coordinate (State Plane)`", "Geo validated, Y coordinate of the incident location." 
+  ,  "Number",
+  "`Park Facility Name`", "If the incident location is a Parks Dept facility, the Name
+                          of the facility will appear here" ,  "Text",
+  "`Park Borough`", "The borough of incident if it is a Parks Dept facility"             
+  ,  "Text",
+  "`Vehicle Type`", "If the incident is a taxi, this field describes the type of TLC vehicle."
+  ,"Text",
+  "`Taxi Company Borough`", "If the incident is identified as a taxi, this field will
+                             display the borough of the taxi company." , "Text",
+  "`Taxi Pick Up Location`", "If the incident is identified as a taxi, this field 
+                              displays the taxi pick up location" , "Text",
+  "`Bridge Highway Name`", "If the incident is identified as a Bridge/Highway, the 
+                            name will be displayed here." , "Text",
+  "`Bridge Highway Direction`", "If the incident is identified as a Bridge/Highway, 
+                              the direction where the issue took place would be displayed here." 
+  , "Text",
+  "`Road Ramp`", "If the incident location was Bridge/Highway this column differentiates
+                  if the issue was on the Road or the Ramp.",  "Text",
+  "`Latitude`" , "Geo based Lat of the incident location" ,  "Number",
+  "`Longitude`", "	Geo based Long of the incident location" ,  "Number",
+  "`Location`" , "	Combination of the geo based lat & long of the incident location"            
+  ,  "Location",
+  
+  
+  
+)
+landscape(knitr::kable(nyc311_info, caption = "Data dictionary for original dataset") %>%
+  kable_styling(font_size=7) %>%
+  column_spec(2,width="6in")
+)
+```

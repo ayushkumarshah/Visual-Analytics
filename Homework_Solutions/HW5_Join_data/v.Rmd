@@ -1,0 +1,341 @@
+---
+title: "homework v"
+author: "Ayush Kumar Shah"
+date: "2020-10-02"
+toc: true
+urlcolor: blue
+output:
+    pdf_document:
+      latex_engine: xelatex
+      includes:
+        in_header: header.tex
+header-includes:
+  \usepackage{booktabs}
+---
+
+```{r echo=FALSE}
+# This chunk is just to make it possible to shrink the typeface in succeeding chunks. Mainly this will be used for the crosstabs.
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+```
+
+```{r initialize, include=FALSE}
+library(tidyverse)
+library(data.table)
+if (!require(kableExtra)){
+  install.packages('kableExtra', dependencies = TRUE)
+  library(kableExtra)
+}
+if (!require(pander)){
+  install.packages('pander', dependencies = TRUE)
+  library(pander)
+}
+```
+
+\newpage
+# Introduction
+
+In this report, the two data sets introduced in the previous report are 
+connected to the 311 
+data set, using `dplyr`. Before connecting them, several operations are performed on the datasets. 
+
+Also, few tables consisting of an extract of the data of 
+each dataset as well as the final joined dataset are shown. Finally, a data
+dictionary for all the data in each dataset including the final joined dataset
+is also displayed. The connections between the columns will be shown in the 
+next final report.
+
+# Reading the tidied nyc311 data
+
+The nyc311 data was tidied and saved in the previous report. In this report, the
+saved tidied version of the nyc311 data set `tidied_nyc311.csv` is loaded.
+
+A sample of 10,000 observations is also saved and used for initial computations
+but replaced later by the complete dataset.
+
+```{r read_nyc311_data}
+nyc311_tidy <-fread("tidied_nyc311.csv",
+              na.strings=c("","NA"))
+# mini311<-nyc311[sample(nrow(nyc311),10000),]
+# write_csv(mini311,"tidied_mini311.csv")
+sample_tidy <- fread("tidied_mini311.csv", na.strings=c("","NA"))
+```
+
+# Loading the additional datasets
+
+```{r read_other_data, echo = TRUE, results = 'hide', message=FALSE}
+nyc_popn <- read_csv('Projected_Population_2010-2040_-_Total_By_Age_Groups.csv')
+
+## 2005-15 graduation
+# nyc_grad <- read_csv('https://data.cityofnewyork.us/resource/qk7d-gecv.csv') 
+nyc_grad <- read_csv('2005_-_2011_Graduation_Outcomes_-_Borough_-_Ethnicity.csv')
+names(nyc_grad)<-names(nyc_grad) %>%
+stringr::str_replace_all("\\s", ".")
+```
+
+The two additional datasets introduced in the previous report are:
+
+1. Projected Population 2010-2040 - Total By Age Groups: [Source](https://data.cityofnewyork.us/City-Government/Projected-Population-2010-2040-Total-By-Age-Groups/97pn-acdf)
+2. 2005 - 2011 Graduation Outcomes - Borough - Ethnicity: [Source](https://data.cityofnewyork.us/Education/2005-2011-Graduation-Outcomes-Borough-Ethnicity/x2hp-8ukt)
+
+## 1. [Projected Population 2010-2040 - Total By Age Groups](https://data.cityofnewyork.us/City-Government/Projected-Population-2010-2040-Total-By-Age-Groups/97pn-acdf)
+
+Projected total New York City population for five intervals from 2010 through 
+2040 by Borough, broken down by 18 age cohorts. 
+(Age groups may not add up to the total due to rounding.)
+
+This dataset is introduced so that the population information in 
+the Borough can be known in correlation to the complaints in the nyc311 data.
+
+## 2. [2005 - 2011 Graduation Outcomes - Borough - Ethnicity](https://data.cityofnewyork.us/Education/2005-2011-Graduation-Outcomes-Borough-Ethnicity/x2hp-8ukt)
+
+Graduation results for all students by year; cohorts of 2001 through 2007 
+(Classes of 2005 through 2011). Graduation Outcomes as Calculated by the New 
+York State Education Department. The New York State calculation method was first
+adopted for the Cohort of 2001 (Class of 2005).
+
+Graduates are defined as those students earning either a Local or Regents 
+diploma and exclude those earning either a special education (IEP) diploma or GED.
+
+This dataset is introduced so that the educational status of the people in 
+different Borough is available for further analysis in correlation with the
+nyc311 data.
+
+Both of these datasets were obtained from the 
+[NYC OpenData](https://opendata.cityofnewyork.us/). 
+Also, they both 
+contain the column `Borough` which makes them connectable to the `nyc311` data.
+
+# Connecting the datasets to nyc311
+
+## Converting the additional datasets to suitable form.
+Before connecting the additional datasets to the nyc311, they are converted to
+suitable form.
+
+### Gathering the years in `nycpopn`
+
+```{r nycpopn_view, echo=FALSE}
+pander(head(nyc_popn), 
+       caption = "Projected_Population 2010-2040 By AgeGroups")
+```
+
+The years need to be gathered together in the `nyc_popn` data.
+
+```{r gathering}
+nyc_popn_tidy <- 
+  nyc_popn %>% 
+  gather('2010':'2040', key="Year", value="Population", convert = TRUE)
+
+pander(head(nyc_popn_tidy, 10), caption = "Tidied Population data")
+```
+
+### Filtering by total population in each Borough
+
+Since the `nyc311` has no information of Age group, so only the observations
+with total population of each Borough is filtered.
+
+```{r total_popn}
+nyc_popn_tidy <- nyc_popn_tidy %>%
+  filter(Age == "Total") %>%
+  select(-Age)
+
+pander(head(nyc_popn_tidy))
+```
+
+## Converting graduation dataset to suitable form
+
+```{r nycgrad_view, echo=FALSE}
+nyc_grad %>%
+  select(1:6) %>%
+  head() %>%
+  pander(caption="2005-2011 Graduation Outcomes - Borough",
+         split.table = "Inf")
+```
+
+The `Cohort.Ctaegory` is parsed as number and added with the `Cohort.Year` to
+calculate the `Graduation.Year`. Then, only the relevant columns are selected.
+Finally, duplicates are removed by grouping the data according to the columns,
+`Graduation.Year` and `Borough`.
+
+
+```{r nyc_grad_tidy}
+nyc_grad_tidy <- nyc_grad %>%
+  mutate(Duration = parse_number(Cohort.Category),
+         Graduation.Year = Cohort.Year + Duration) %>%
+  select(Graduation.Year, Borough, c(5:7)) %>%
+  group_by(Graduation.Year, Borough) %>%
+  summarize_all(max)
+pander(head(nyc_grad_tidy), split.table = "Inf")
+```
+## Check Borough's values
+
+Since the tables will be connected by `Borough`, it is checked if there are any
+unspecified values in the column or mismatch in all the tables.
+
+```{r Borough_check, echo = FALSE, warning=FALSE}
+nyc311_tidy %>%
+  group_by(Borough) %>%
+  summarise(n = n()) %>%
+  pander()
+
+nyc_grad_tidy %>%
+  group_by(Borough) %>%
+  summarise(n = n()) %>%
+  pander()
+
+nyc_popn_tidy %>%
+  group_by(Borough) %>%
+  summarise(n = n()) %>%
+  pander()
+```
+
+Since there are no Unspecified or null values, we are good to go. However, the 
+values of Borough in the 2 tables table must be converted to uppercase.
+
+## Converting to uppercase
+
+```{r upper_case}
+nyc_grad_tidy$Borough <- nyc_grad_tidy$Borough %>% 
+                            str_to_upper()
+nyc_popn_tidy$Borough <- nyc_popn_tidy$Borough %>% 
+                            str_to_upper()
+```
+
+## Viewing the year distribution of the tables
+
+Since these tables contain different year values, we need to sample it based on 
+a particular year. So, the year distributions of all three datasets are checked.
+
+```{r year_dist, echo=FALSE}
+nyc311_tidy %>%
+  ggplot() +
+  geom_bar(aes(x=Created.Year)) +
+  ggtitle("Created Year Distribution of Nyc311 dataset")
+
+nyc_popn_tidy %>%
+  ggplot() +
+  geom_bar(aes(x=Year)) +
+  ggtitle("Year Distribution of Population dataset")
+
+nyc_grad_tidy %>%
+  ggplot() +
+  geom_bar(aes(x=Graduation.Year)) +
+  ggtitle("Year Distribution of Graduation dataset")
+```
+  
+The results show that `2010` would be a good year to perform the analysis since
+it is common in all the tables.
+
+## Joining the datasets
+
+Now that all the datasets are processed, they are ready to be connected by the columns `Year` and `Borough`. Note that the column name for `Year` differs in the three tables.
+
+Also, 2010 is selected as the year for the analysis, hence all the tables are filtered accordingly.
+
+```{r combine}
+nyc_combined <- nyc311_tidy %>%
+  left_join(nyc_popn_tidy, by = c("Created.Year" = "Year", "Borough" = "Borough")) %>%
+  left_join(nyc_grad_tidy, by = c("Created.Year" = "Graduation.Year", "Borough" = "Borough")) %>%
+  filter(Created.Year == 2010)
+```
+
+# View extracts of the data
+
+## Before joining
+
+```{r view_extracts1, echo=FALSE}
+pander(head(nyc311_tidy), caption = "Tidy Nyc311 data", split.cells = 5)
+pander(head(nyc_popn_tidy), caption = "Projected Population 2010-2040 data (Tidy)")
+pander(head(nyc_grad_tidy), caption = "2005-2011 Graduation Outcomes - Borough (Tidy)", split.table=Inf)
+```
+
+## After joining
+```{r view_extracts2, echo=FALSE}
+pander(head(nyc_combined), caption = "Final combined dataset", split.cells = 5)
+```
+
+\newpage
+# Data Dictionary
+
+```{r dict, echo = FALSE}
+nyc_popn_info <- tribble( 
+  ~ Column.Name,  ~ Description,  ~ DataType,
+  "`Borough`"   , "Name of the New York City Borough" 
+  , "Text",  
+  "`Age`"       , "One of 18 Age cohorts like '0-4', '15-19', 'Total', and so on", "Text",
+  "`Year`"  , "Year in which the population is projected", "Number",
+  "`Population`"       , "The projected population value" , "Number"
+)
+pander(nyc_popn_info, caption="Data dictionary for Projected Population 2010-2040 dataset")
+
+nyc_grad_info <- tribble( 
+  ~ Column.Name,  ~ Description,  ~ DataType,
+  "`Borough`"   , "Name of the New York City Borough", "Text",  
+  "`Graduation.Year`", "The cohort's year of graduation", "Number",
+  "`Total.Cohort.Num`", "Number of students in the cohort", "Number",
+  "`Total.Grads.Num`", "Number of students who graduated in the cohort", "Number",
+  "`Total.Grads.Pct.of.cohort`", "Percentage of students who graduated in the cohort", "Number"
+)
+pander(nyc_grad_info, caption="Data dictionary for 2005-2011 Graduation Outcomes dataset")
+
+nyc_combined_info <- tribble( 
+  ~ Column.Name,  ~ Description,  ~ DataType,
+  "Created.Date" , "Date Service Request (SR) was created", "Floating Timestamp",
+  "Created.Month" , "Month SR was created (1-12)", "Number",
+  "Created.Day" , "Day of month SR was created (1-31)", "Number",
+  "Created.Year" , "Year SR was created", "Number",
+  "Created.Time" , "Time SR was created", "Floating Timestamp",
+  "Created.Hour" , "Hour SR was created (0-24)", "Number",
+  "Closed Date"  , "Date SR was closed by responding agency", "Floating Timestamp",
+  "Population", "Total population of the Borough", "Number",
+  "Total.Cohort.Num", "Number of students in the cohort", "Number",
+  "Total.Grads.Num", "Number of students who graduated in the cohort", "Number",
+  "Total.Grads.Pct.of.cohort", "Percentage of students who graduated in the cohort", "Number",
+  "Agency"       , "Acronym of responding City Government Agency" , "Text",
+  "Agency Name"  , "Full Agency name of responding City Government Agency", "Text",
+  "Complaint Type","This is the first level of a hierarchy identifying the topic of 
+                      the incident or condition.Complaint Type may have a corresponding
+                      Descriptor (below) or may stand alone." , "Text",
+  "Descriptor"   ,"This is associated to the Complaint Type, and provides further 
+                     detail on the incident or condition.Descriptor values are dependent
+                     on the Complaint Type, and are not always required in SR." , "Text",
+  "Location.Type","Describes the type of location used in the address information", "Text",
+  "Incident.Zip" ,"Incident location zip code, provided by geo validation.", "Text",
+  "Incident.Address","House number of incident address provided by submitter.", "Text",
+  "Cross.Street.1", "First Cross street based on the geo validated incident location", "Text",
+  "Cross.Street.2", "Second Cross Street based on the geo validated incident location" , "Text",
+  "Address.Type","Type of incident location information available." , "Text",
+  "City"        , "City of the incident location provided by geovalidation.", "Text",
+  "Status"      , "Status of SR submitted", "Text",
+  "Due.Date"    , "Date when responding agency is expected to update the SR. 
+                     This is based on the Complaint Type and internal Service Level 
+                     Agreements (SLAs).", "Floating Timestamp",
+  "Resolution.Description", "Describes the last action taken on the SR by the 
+                               responding agency. May describe next or future steps.","Text",
+  "Borough", "Provided by the submitter and confirmed by geovalidation." ,  "Text",
+  "Park.Facility.Name", "If the incident location is a Parks Dept facility, the Name
+                          of the facility will appear here" ,  "Text",
+  "Latitude" , "Geo based Lat of the incident location" ,  "Number",
+  "Longitude", "	Geo based Long of the incident location" ,  "Number"
+)
+
+landscape(knitr::kable(nyc_combined_info, caption = "Data dictionary for final Nyc combined dataset") %>%
+  kable_styling(font_size=7) %>%
+  column_spec(2,width="6in")
+)
+```
+
+# Conclusion
+
+Hence, the two additional datasets were joined with the `nyc311` data by converting 
+the datasets into appropriate form (tidying, grouping and removal of redundant columns),
+performing a left join by columns `Year` and `Borough` and finally filtering it 
+by the `Year==2010` constraint.
+
+The data extracts of tables before and after joining were were also displayed.
+Finally, the data dictionary for of the two additional datasets and the final 
+combined dataset was displayed.
+

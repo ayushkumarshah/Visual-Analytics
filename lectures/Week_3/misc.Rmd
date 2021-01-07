@@ -1,0 +1,58 @@
+---
+title: "Mixing portrait and landscape with a header.tex file"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    includes:
+      in_header: header.tex
+    fig_caption: false
+---
+
+Portrait
+```{r}
+summary(cars)
+```
+
+\newpage
+\blandscape
+Landscape
+```{r}
+summary(cars)
+```
+\elandscape
+
+\newpage
+More portrait
+```{r}
+summary(cars)
+```
+
+To display only the seven longest bars in a barplot:
+
+```{r}
+library(data.table)
+library(tidyverse)
+mini<-fread("mini311.csv")
+tbl<-sort(table(mini$Agency), decreasing=TRUE)[1:7]
+ggplot(as.data.frame(tbl),aes(Var1,Freq))+geom_bar(stat="identity")
+```
+
+Check individual landscape page
+
+Check removing "Figure <Number>" from figures.
+
+```{r}
+library(kableExtra)
+landscape(knitr::kable(head(mtcars), "latex"))
+```
+
+![name](ux-vs-design.jpg)
+
+To suppress just for a single figure:
+
+![name](ux-vs-design.jpg)\
+
+```{r}
+library(pander)
+pander(head(mini))
+```

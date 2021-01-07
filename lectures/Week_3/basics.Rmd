@@ -1,0 +1,81 @@
+---
+title: "Basics"
+author: "Mick McQuaid"
+date: "3/10/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load the tidyverse packages.
+
+```{r step one}
+library(tidyverse)
+```
+
+Display the built-in data set, mpg.
+
+```{r step two}
+mpg
+```
+
+Show a scatter plot of displ times hwy (which is the same as saying engine size times highway gas mileage).
+
+```{r step three}
+ggplot(data=mpg)+
+  geom_point(mapping = aes(x=displ,y=hwy))
+```
+
+Show the exact same scatter plot.
+
+```{r step four}
+ggplot(data=mpg,mapping = aes(x=displ,y=hwy))+
+  geom_point()
+```
+
+Show the exact same scatter plot.
+
+```{r step five}
+ggplot(mpg,aes(x=displ,y=hwy))+
+  geom_point()
+```
+
+Show the exact same scatter plot.
+
+```{r step fiveb}
+ggplot(mpg,aes(x=displ,y=cty))+
+  geom_point(mpg,mapping=aes(x=displ,y=hwy))
+```
+
+Show a slightly different scatter plot.
+
+```{r step fivec}
+ggplot(mpg,aes(x=displ,y=hwy))+
+  geom_point(mpg,mapping=aes(x=displ,y=cty))
+```
+
+Show the hwy scatter plot except in color.
+
+```{r step six}
+ggplot(mpg,aes(x=displ,y=hwy))+
+  geom_point(mapping=aes(color=class))
+```
+
+Show the exact same scatter plot.
+
+```{r step seven}
+ggplot(mpg,aes(x=displ,y=hwy))+
+  geom_point(aes(color=class))
+```
+
+Show the scatter plot in the book where the two-seaters are highlighted in red.
+
+```{r step eight}
+ggplot(mpg,aes(x=displ,y=hwy))+
+  geom_point()+
+  geom_point(data=mpg[mpg$class=="2seater",],color="red")
+```
+
+In the above code, I selected rows of the data set. Specifically, I selected all rows where class is "2seater". I colored just those rows red.

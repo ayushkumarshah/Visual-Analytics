@@ -1,0 +1,100 @@
+---
+title: 'concise plotting tips'
+author: 'Mick McQuaid'
+date: '2019-03-11'
+output:
+    pdf_document:
+header-includes:
+  \usepackage{booktabs}
+---
+
+```{r echo=FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+```
+
+
+```{r echo=FALSE}
+# This chunk is just to make it possible to shrink the typeface in succeeding chunks. Mainly this will be used for the crosstabs.
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+```
+
+# Initialization
+
+```{r initialize}
+library(tidyverse)
+library(data.table)
+library(xtable)
+```
+
+# File Reading
+
+```{r readmini}
+samplemini<-fread("mini311.csv")
+```
+
+# Example from Maitha
+
+```{r barplot}
+maxAgency <- samplemini %>%
+  group_by(Agency) %>%
+  summarize(count=n()) %>%
+  filter(count>0)
+  maxAgency$Agency<-factor(maxAgency$Agency,
+  levels=maxAgency$Agency[order(maxAgency$count)])
+
+ggplot(data = maxAgency, mapping = aes(x=Agency,y=count))+
+  geom_bar(stat="identity", fill = "#87CEFA") +
+  ggtitle("Complaints per Agency")+
+  xlab("Agency")+
+  ylab("Number of Complaints")+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent",colour = "gray"),
+        plot.title = element_text(hjust = 0.5))+
+  coord_flip() +
+  labs(caption = "(based on data from NYC 311)")
+```
+
+# Example with diagonal labels
+
+```{r diagonal x labels}
+ggplot(data = maxAgency, mapping = aes(x=Agency,y=count))+
+  geom_bar(stat="identity", fill = "#87CEFA") +
+  ggtitle("Complaints per Agency")+
+  xlab("Agency")+
+  ylab("Number of Complaints")+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(fill = "transparent",colour = "gray"),
+        plot.title = element_text(hjust = 0.5))+
+  theme( axis.text.x = element_text(angle = 45, hjust = 1))+
+  labs(caption = "(based on data from NYC 311)")
+```
+
+# Example using slow ggplotting
+
+This example uses a technique called *slow ggplotting*, popularized by a guide called *The ggplot flipbook*, available at
+[https://evamaerey.github.io/ggplot_flipbook/ggplot_flipbook_xaringan.html](https://evamaerey.github.io/ggplot_flipbook/ggplot_flipbook_xaringan.html)
+.
+This technique adds each element one at a time. You can comment out all but the first element and run the chunk, then add one element at a time, rerunning the chunk to see the effect of adding each element separately.
+
+```{r slow ggplotting}
+ggplot(maxAgency)+
+  aes(x=Agency)+
+  aes(y=count)+
+  geom_bar(stat="identity", fill = "#87CEFA") +
+  labs(title="Complaints per Agency")+
+  labs(subtitle="New York City agencies handling 311 complaints")+
+  labs(x="Agency")+
+  labs(y="Number of Complaints")+
+  labs(caption = "(based on data from NYC 311)")+
+  theme(panel.grid.major = element_blank())+
+  theme(panel.grid.minor = element_blank())+
+  theme(plot.background = element_rect(fill = "transparent",colour = "gray"))+
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme( axis.text.x = element_text(angle = 45, hjust = 1))
+```

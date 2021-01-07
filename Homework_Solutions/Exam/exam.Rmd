@@ -1,0 +1,746 @@
+---
+title: "Final Exam"
+author: "Ayush Kumar Shah"
+date: "2020-10-08"
+toc: true
+urlcolor: blue
+output:
+    pdf_document:
+      latex_engine: xelatex
+header-includes:
+  \usepackage{booktabs}
+---
+
+```{r echo=FALSE}
+# This chunk is just to make it possible to shrink the typeface in succeeding chunks. Mainly this will be used for the crosstabs.
+
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+knitr::opts_chunk$set(fig.width=12,fig.height=8)
+```
+
+```{r initialize, include=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(data.table)
+if (!require(kableExtra)){
+  install.packages('kableExtra', dependencies = TRUE)
+  library(kableExtra)
+}
+if (!require(pander)){
+  install.packages('pander', dependencies = TRUE)
+  suppressWarnings(suppressPackageStartupMessages(library(pander)))
+}
+```
+
+```{r uniqc, include=FALSE, warning=FALSE, message=FALSE}
+uniqdashc <- function(x,y) {
+  y <- enquo(y)
+  x %>%
+    select(!!y) %>%
+    group_by(!!y) %>%
+    dplyr::mutate(count=n()) %>%
+    unique() %>%
+    arrange(desc(count))
+}
+```
+
+
+\newpage
+# Introduction
+
+In this report, the `h1b` dataset will be analyzed to generate and communicate
+findings of different aspects of the data in an effective and presentable manner. 
+The analysis of the `h1b` dataset
+will help to identify different factors affecting the H-1B Visa acceptance as well
+as interrelationships between the different variables present in the data.
+
+# About the H-1B data
+
+This dataset contains administrative data from employers’ Labor Condition Applications (ETA Forms 9035 & 9035E) and the certification determinations processed by the Department’s Office of Foreign Labor Certification, Employment and Training Administration where the date of the determination was issued on or after October 1, 2016, and on or before June 30, 2017. All data were extracted from the Office of Foreign Labor Certification’s iCERT Visa Portal System, an electronic filing and application processing system of employer requests for H-1B nonimmigrant workers.
+
+The H-1B visa is a temporary or nonimmigrant "specialty occupation" U.S. visa, which means the holder is employed in a position that requires specialized skills or knowledge, for which the employer cannot find a US-based worker. It allows a foreign worker to go to the United States and work for an American company. Hence, it is 
+an important source of information from which useful insights can be formed.
+
+The `h1b` data in this report includes detailed information about the application like submission date, case status, and employer's information like name, address, state, proposed wage, H-1B dependence, and so on. It also includes information about the job name being requested for temporary labor conditions.
+
+
+```{r read_h1b_data, include=FALSE, warning=FALSE, message=FALSE}
+h1b <- fread("h1bdata.csv",
+              na.strings=c("","NA"))
+```
+
+\newpage
+
+## Data extract
+
+Let us view an extract of the `h1b` data with only a few columns.
+
+```{r h1b_extract, echo=FALSE, warning=FALSE, message=FALSE}
+h1b %>%
+  select(CASE_STATUS,
+         EMPLOYER_NAME,
+      	 EMPLOYER_STATE,
+      	 SOC_NAME,
+      	 WAGE_RATE_OF_PAY_FROM,
+      	 `H-1B_DEPENDENT`,
+      	 WILLFUL_VIOLATOR
+	  ) %>%
+  head(5) %>%
+  pander(caption = "Extract of H-1B Visa Data 2016/17", 
+       split.cells = 5)
+```
+
+
+
+```{r test, include=FALSE}
+# uniqdashc(h1b_nodups, CASE_SUBMITTED_YEAR)
+# uniqdashc(h1b_nodups, DECISION_YEAR)
+# uniqdashc(h1b_nodups, VISA_CLASS)
+# uniqdashc(h1b_nodups, EMPLOYER_NAME)
+# uniqdashc(h1b_nodups, EMPLOYER_STATE)
+# uniqdashc(h1b_nodups, EMPLOYER_COUNTRY)
+# uniqdashc(h1b_nodups, SOC_NAME)
+# uniqdashc(h1b_nodups, FULL_TIME_POSITION)
+# uniqdashc(h1b_nodups, PREVAILING_WAGE) %>%
+#   filter(PREVAILING_WAGE == 0)
+# uniqdashc(h1b_nodups, TOTAL_WORKERS) %>%
+#   filter(TOTAL_WORKERS == 0)
+# uniqdashc(h1b_nodups, PW_SOURCE)
+# uniqdashc(h1b_nodups, PW_UNIT_OF_PAY )
+# uniqdashc(h1b_nodups, WAGE_UNIT_OF_PAY )
+# uniqdashc(h1b_nodups, WILLFUL_VIOLATOR)
+# uniqdashc(h1b_nodups, CASE_STATUS)
+# uniqdashc(h1b_nodups, TOTAL_WORKERS)
+
+# h1b_nodups %>%
+#   filter(EMPLOYER_NAME == "INFOSYS LIMITED") %>%
+#   uniqdashc(`H-1B_DEPENDENT`)
+
+# h1b_nodups %>%
+#   filter(PW_UNIT_OF_PAY == "Hour") %>%
+#   select(PREVAILING_WAGE) %>%
+#   summary()
+# 
+# h1b_nodups %>%
+#   filter(PW_UNIT_OF_PAY == "Week") %>%
+#   select(PREVAILING_WAGE) %>%
+#   summary()
+# 
+# h1b_nodups %>%
+#   filter(PW_UNIT_OF_PAY == "Month") %>%
+#   select(PREVAILING_WAGE) %>%
+#   summary()
+# 
+# h1b_nodups %>%
+#   filter(PW_UNIT_OF_PAY == "Year") %>%
+#   select(PREVAILING_WAGE) %>%
+#   summary()
+```
+
+# Tidying the data
+
+The first step in analyzing any data is converting it into a tidy form by removing any infelicities present in it so that analysis can be performed easily. 
+The given data is very close to
+tidy, and we perform a few operations to make it perfect for further exploration
+and analysis. We perform various transformations to the data using the `dplyr` 
+and `tidyverse` package to achieve this.
+
+## Checking and removing duplicates
+
+The original data consists of `r nrow(h1b)` rows.
+
+We first compute the nonduplicate dataset using `distinct()` which returns only
+the unique observations from the original `H-1B Visa` data. We then compare the
+resulting dataset to the original dataset using `all_equal()`.
+
+```{r duplicates, include=FALSE, warning=FALSE, message=FALSE}
+h1b_nodups <- distinct(h1b)
+cat(all_equal(h1b_nodups, h1b))
+```
+
+After removing `r nrow(h1b) - nrow(h1b_nodups)` duplicate rows, number of remaining
+observations = `r nrow(h1b_nodups)`
+
+So, we use the nonduplicate dataset for further exploration.
+
+## Removing irrelevant columns and Filtering data
+
+### Columns with missing values
+
+Let us view the counts of empty rows in each column. We only display the columns which have N.A. values.
+
+```{r count, echo=FALSE, warning=FALSE, message=FALSE}
+na_count <- data.frame(colSums(is.na(h1b_nodups)))
+colnames(na_count) <- "NA.Count"
+na_count %>%
+  arrange(NA.Count) %>%
+  filter(NA.Count > 0) %>%
+  pander(caption = "Columns with NA values")
+```
+
+We remove the observations containing missing values corresponding to the variables
+`EMPLOYER_STATE`, `FULL_TIME_POSITION`.
+
+We also remove the columns `PW_SOURCE_YEAR, NAICS_CODE, WORKSITE_STATE, DECISION_YEAR, DECISION_MONTH, DECISION_DAY, PW_SOURCE_OTHER, WAGE_RATE_OF_PAY_TO, WORKSITE_POSTAL_CODE`  since they are not required. We use observations
+corresponding to Employers of the USA only and hence remove the column `EMPLOYER_COUNTRY`
+as well.
+
+Let us take a look at the year distribution in which the applications were submitted.
+
+```{r year, echo=FALSE, warning=FALSE, message=FALSE} 
+h1b_nodups %>%
+  uniqdashc(CASE_SUBMITTED_YEAR) %>%
+  pander()
+```
+
+We can see that the data consists of negligible cases submitted in the years 
+2011 - 2013. So, we remove observations corresponding to those years.
+
+Also, we remove the observations in which the number of workers is 0 or 
+the wages are 0. 
+
+Likewise, we keep only the wage values which have Yearly units of pay
+otherwise, the analysis of wages would not be correct as it would involve mixed units.
+We can do this since observations with units of pay other than Year are very low.
+
+```{r pay_units, echo=FALSE, warning=FALSE, message=FALSE}
+h1b_nodups %>%
+  uniqdashc(PW_UNIT_OF_PAY) %>%
+  ggplot(aes(x = PW_UNIT_OF_PAY, y = count)) +
+  geom_bar(stat = "identity") +
+  labs(title=paste("Prevaling Pay unit distribution"),
+       x = paste("Unit of pay")) +
+  scale_y_continuous(labels = scales::comma)
+h1b_nodups %>%
+  uniqdashc(WAGE_UNIT_OF_PAY) %>%
+  ggplot(aes(x = WAGE_UNIT_OF_PAY, y = count)) +
+  geom_bar(stat = "identity") +
+  labs(title=paste("Proposed Pay unit distribution"),
+       x = paste("Unit of pay")) +
+  scale_y_continuous(labels = scales::comma)
+```
+
+```{r remove, echo=FALSE, warning=FALSE, message=FALSE}
+h1b_tidy <- h1b_nodups %>%
+  select(-PW_SOURCE_YEAR) %>%
+  filter(EMPLOYER_COUNTRY == "UNITED STATES OF AMERICA",
+         !between(CASE_SUBMITTED_YEAR, 2011, 2013) , 
+         TOTAL_WORKERS > 0, 
+         !is.na(FULL_TIME_POSITION),
+         !is.na(EMPLOYER_STATE),
+         PREVAILING_WAGE > 0,
+         WAGE_RATE_OF_PAY_FROM > 0,
+         PW_UNIT_OF_PAY == "Year",
+         WAGE_UNIT_OF_PAY == "Year") %>%
+  select(-c(EMPLOYER_COUNTRY, PW_UNIT_OF_PAY, 
+            WAGE_UNIT_OF_PAY, NAICS_CODE, WORKSITE_STATE,
+            DECISION_YEAR, DECISION_MONTH, DECISION_DAY,
+            PW_SOURCE_OTHER, WAGE_RATE_OF_PAY_TO, WORKSITE_POSTAL_CODE))
+```
+
+
+After tidying the data, number of observations is reduced from `r nrow(h1b_nodups)`
+to `r nrow(h1b_tidy)` and `r ncol(h1b_nodups) - ncol(h1b_tidy)` columns have been 
+removed.
+
+\newpage
+
+# Findings
+
+We now explore the data by performing various kinds of transformations and 
+visualizations on the tidied data we have produced. The main objective of the 
+exploration is to find useful insights and findings from the data so that we can
+answer various questions that we have about the data as well as explore the 
+interesting patterns in the data.
+
+To begin the explorations, we must have a set of questions initially to
+answer them through the visualizations. A few of the questions might be:
+
+1. What are the top 10 companies submitting the H-1B VISA applications?
+2. What are the top 10 companies in terms of proposed wages?
+3. How does the monthly trend in submissions of H-1B VISA Applications look like?
+4. How does the monthly trend in submissions of H-1B VISA Applications in the top 10 states look like?
+5. What is the distribution of case status and the variation with full-time positions and employers' H-1B dependence?
+6. How are the Wages and number of workers distributed?
+7. How are the Prevailing Wages distributed to its source?
+8. Is there a linear relationship between the prevailing wage and the proposed wage?
+9. How is the proposed wage distributed among popular jobs?
+10. Is there a dependence between the Case status and submission month?
+11. How does the Case status co-vary with Job count?
+12. How does the monthly trend in popular jobs look like?
+13. How are the states and the case status related?
+
+We will follow Wickham's layered grammar of graphics approach using `ggplot2` 
+from CRAN to perform the explorations and create visualizations to answer these
+questions.
+The components of the layered grammar allow us to completely and explicitly 
+describe a wide range of graphics in order to explore the data effectively.
+
+## 1. What are the top 10 companies submitting the H-1B VISA applications?
+
+```{r top10_emp, echo=FALSE, message=FALSE, warning=FALSE}
+top10_emp <- h1b_tidy %>%
+  group_by(EMPLOYER_NAME) %>%
+  summarize(APPLICATIONS_COUNT = n()) %>%
+  mutate(rank = min_rank(desc(APPLICATIONS_COUNT)),
+         `Proportion in %` = APPLICATIONS_COUNT / sum(APPLICATIONS_COUNT) * 100) %>%
+  filter(rank <= 10) %>%
+  arrange(rank) %>%
+  select(-rank)
+
+pander(top10_emp, 
+       caption = "Top 10 Employers on the basis of applications")
+
+top10_emp$EMPLOYER_NAME<-
+  factor(top10_emp$EMPLOYER_NAME,
+  levels=top10_emp$EMPLOYER_NAME[order(top10_emp$APPLICATIONS_COUNT)])
+
+ggplot(top10_emp,
+       aes(x=EMPLOYER_NAME, y=APPLICATIONS_COUNT, fill=EMPLOYER_NAME)) +
+   geom_bar(stat="identity", show.legend = FALSE) +
+   coord_flip() +
+  labs(
+    title = paste("Top 10 Employers on the basis of applications"),
+    y = paste("Number of H-1B applications submitted"),
+    x = paste("Employer Name")
+    )
+```
+
+We can see that Infosys Limited has submitted the most number of H-1B VISA Applications, far more than Microsoft and Google.
+
+## 2. What are the top 10 companies in terms of proposed wages?
+
+We find out the top 10 employers based on the sum of the wages
+proposed by them in all of their H-1B visa applications. 
+
+```{r top10_emp_worker, echo=FALSE, warning=FALSE, message=FALSE}
+top10_emp_spon <- h1b_tidy %>%
+  group_by(EMPLOYER_NAME) %>%
+  summarize(PROPOSED_WAGE=sum(WAGE_RATE_OF_PAY_FROM)) %>%
+  mutate(rank = min_rank(desc(PROPOSED_WAGE)),
+         `Proportion in %` = PROPOSED_WAGE / sum(PROPOSED_WAGE) * 100) %>%
+  filter(rank <= 10) %>%
+  arrange(rank) %>%
+  select(-rank)
+
+pander(top10_emp_spon, 
+       caption = "Top 10 Employers on the basis of sposnorship")
+
+top10_emp_spon$EMPLOYER_NAME<-
+  factor(top10_emp_spon$EMPLOYER_NAME,
+  levels=top10_emp_spon$EMPLOYER_NAME[order(top10_emp_spon$PROPOSED_WAGE)])
+
+ggplot(top10_emp_spon,
+       aes(x=EMPLOYER_NAME, y=PROPOSED_WAGE, fill=EMPLOYER_NAME)) +
+   geom_bar(stat="identity") +
+   coord_polar(theta = "y") +
+  labs(
+    title = paste("Top 10 Employers on the basis of \nsponsorship"),
+    y = paste("Proposed Wage Rate"),
+    x = paste("Employer Name")
+    )+
+    theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid  = element_blank())
+```
+
+We can see that Infosys limited is the top employer in terms of sponsorship as well.
+Tata, Google, and Microsoft are just behind Infosys.
+
+## 3. What are the most popular job titles in H-1B VISA Applications?
+
+```{r top10_jobs, echo=FALSE, message=FALSE, warning=FALSE}
+top10_jobs <- h1b_tidy %>%
+  group_by(SOC_NAME) %>%
+  summarize(APPLICATIONS_COUNT = n()) %>%
+  mutate(rank = min_rank(desc(APPLICATIONS_COUNT)),
+         `Proportion in %` = APPLICATIONS_COUNT / sum(APPLICATIONS_COUNT) * 100) %>%
+  filter(rank <= 10) %>%
+  arrange(rank) %>%
+  select(-rank)
+
+pander(top10_jobs, 
+       caption = "Most Popular Jobs in Applications")
+
+top10_jobs$SOC_NAME<-
+  factor(top10_jobs$SOC_NAME,
+  levels=top10_jobs$SOC_NAME[order(top10_jobs$APPLICATIONS_COUNT)])
+
+h1b_tidy %>%
+  filter(SOC_NAME %in% top10_jobs$SOC_NAME) %>%
+  ggplot(aes(x=forcats::fct_infreq(SOC_NAME), y=..prop.., group=1)) +
+   geom_bar(show.legend = FALSE) +
+   coord_flip() +
+  labs(
+    title = paste("Most popular Jobs in H-1B VISA Applications"),
+    y = paste("Number of H-1B applications submitted"),
+    x = paste("Job Name")
+    )
+```
+
+We can see that Computer Occupation occupies more than 50% of the job
+among the top 10 most popular jobs in VISA applications. This result is in accordance with our expectations since people going to the U.S. to work in the computer field have been increasing rapidly.
+
+## 4. How does the monthly trend in submissions of H-1B VISA Applications in the top 10 states look like?
+
+```{r top10_states, echo=FALSE, message=FALSE, warning=FALSE}
+top10_states <- h1b_tidy %>%
+  group_by(EMPLOYER_STATE) %>%
+  summarize(APPLICATIONS_COUNT = n()) %>%
+  mutate(rank = min_rank(desc(APPLICATIONS_COUNT)),
+         `Proportion in %` = APPLICATIONS_COUNT / sum(APPLICATIONS_COUNT) * 100) %>%
+  filter(rank <= 10) %>%
+  arrange(rank) %>%
+  select(-rank)
+
+pander(top10_states, 
+       caption = "Top 10 Employer States")
+
+month_labeller <- function(variable,value){return(month.abb[value])}
+h1b_tidy %>%
+  filter(EMPLOYER_STATE %in% top10_states$EMPLOYER_STATE) %>%
+  count(EMPLOYER_STATE, CASE_SUBMITTED_MONTH) %>%
+  ggplot(aes(x=EMPLOYER_STATE, y=n, fill=EMPLOYER_STATE)) +
+    geom_bar(stat="identity", show.legend = FALSE) +
+  # coord_cartesian(ylim = c(0, 5000)) +
+    coord_flip() +
+    facet_wrap(~ CASE_SUBMITTED_MONTH, nrow=3, labeller = month_labeller) +
+  # scale_fill_brewer(palette="Blues")
+    labs(
+    title = paste("Monthly trend of H-1B applications in Top 10 Employer States"),
+    y = paste("Number of H-1B applications submitted"),
+    x = paste("Employer State")
+    )
+# Same plot different way
+# h1b_tidy %>%
+#   filter(EMPLOYER_STATE %in% top10_states$EMPLOYER_STATE) %>%
+#   # count(EMPLOYER_STATE, CASE_SUBMITTED_MONTH) %>%
+#   ggplot(aes(x=EMPLOYER_STATE, fill=EMPLOYER_STATE)) +
+#     geom_bar(show.legend = FALSE) +
+#   # coord_cartesian(ylim = c(0, 5000)) +
+#     coord_flip() +
+#     facet_wrap(~ CASE_SUBMITTED_MONTH, nrow=3, labeller = month_labeller) +
+#   # scale_fill_brewer(palette="Blues")
+#     labs(
+#     title = paste("Monthly trend of H-1B applications in Top 10 Employer States"),
+#     y = paste("Number of H-1B applications submitted"),
+#     x = paste("Employer State")
+#     )
+```
+
+We can observe that H-1B applications submitted in July to September are extremely low compared to other months. Most applications are submitted in March. It might be the case because people are generally busy in those months due to fewer holidays. 
+
+Likewise, California has the highest number of application submissions.
+
+## 5. What is the distribution of case status and the variation with full-time positions and H-1B dependence of employers?
+
+```{r case_status_full_time, echo=FALSE, message=FALSE, warning=FALSE}
+h1b_tidy %>%
+   ggplot(aes(x=CASE_STATUS, fill=FULL_TIME_POSITION)) +
+   geom_bar(position="dodge") +
+  labs(
+    title = paste("Case Status Distribution"),
+    y = paste("Number of H-1B applications submitted"),
+    x = paste("Case Status")
+    ) + 
+  scale_y_log10(labels = scales::comma) +
+  coord_flip() +
+    theme(legend.position = "bottom") +
+  guides(
+    color = guide_legend(
+      nrow = 1,
+      override.aes = list(size = 4)
+    )
+  )
+```
+
+```{r case_status_h1b_dependency, echo=FALSE, message=FALSE, warning=FALSE}
+h1b_tidy %>%
+  filter(!is.na(`H-1B_DEPENDENT`)) %>%
+   ggplot(aes(x=CASE_STATUS, fill=`H-1B_DEPENDENT`)) +
+   geom_bar(position="stack", alpha = 4/5) +
+  labs(
+    title = paste("Case Status Distribution"),
+    y = paste("Case Status"),
+    x = paste("Employer Name")
+    ) + 
+  scale_y_continuous(labels = scales::comma) +
+  coord_flip() +
+    theme(legend.position = "bottom") +
+  guides(
+    color = guide_legend(
+      nrow = 1,
+      override.aes = list(size = 4)
+    )
+  )
+  
+```
+We can see that among the certified cases, a greater proportion of the employers 
+was not declared as H-1B Dependent, which suggests that being declared as H-1B dependent might reduce certification chances. 
+
+## 6. How are the Wages and number of workers distributed?
+
+### Prevailing Wage Distribution
+
+```{r wage_distribution, echo=FALSE, message=FALSE, warning=FALSE}
+h1b_tidy %>%
+  ggplot(aes(x = PREVAILING_WAGE)) +
+  geom_histogram(binwidth=10000, fill="darkgreen") +
+  coord_cartesian(xlim = c(0, 200000)) +
+  scale_x_continuous(breaks = seq(0, 200000, 20000)) +
+  labs(
+    title = paste("Prevailing Wage Distribution"),
+    y = paste("Frequency"),
+    x = paste("Prevailing Wage")
+    )
+```
+
+### Proposed Wage Distribution
+
+```{r proposed_wage_distribution, echo=FALSE, message=FALSE, warning=FALSE}
+h1b_tidy %>%
+  ggplot(aes(x = WAGE_RATE_OF_PAY_FROM)) +
+  geom_histogram(binwidth=10000, fill="darkblue") +
+  coord_cartesian(xlim = c(0, 200000)) +
+  scale_x_continuous(breaks = seq(0, 200000, 20000)) +
+  labs(
+    title = paste("Proposed Wage Distribution"),
+    y = paste("Frequency"),
+    x = paste("Proposed Wage")
+    )
+# uniqdashc(h1b_tidy, PW_UNIT_OF_PAY )
+```
+We can observe that both types of wages approximately follow the normal distribution, as suggested by the bell shaped curves. Both are centered around at the wage value of 60000 to 80000, corresponding to the average salary.
+
+### Number of Workers distribution
+
+```{r workers_distribution, echo=FALSE, message=FALSE, warning=FALSE}
+h1b_tidy %>%
+  ggplot(aes(x = TOTAL_WORKERS)) +
+  geom_histogram(binwidth=2, fill="darkorange") +
+  coord_cartesian(xlim = c(0, 25)) +
+  scale_x_continuous(breaks=seq(0, 25, by =1)) +
+  scale_y_log10(breaks=c(0, 100, 1000, 10000, 50000, 100000, 200000, 400000),
+                labels=scales::comma) +
+  # scale_y_continuous(labels=scales::comma) +
+  
+  labs(
+    title = paste("Number of Workers Distribution"),
+    y = paste("Frequency in log scale"),
+    x = paste("Number of workers")
+    )
+```
+
+We can see that the distribution of the number of workers does not show any specific standard distribution. The frequency of applications decreases with the increase in the number of workers, which is natural as most companies request only a few workers.  
+
+## 7. How are the Prevailing Wages distributed with respect to its source?
+
+```{r freq_poly, echo=FALSE, message=FALSE, warning=FALSE}
+h1b_tidy %>%
+  filter(!is.na(PW_SOURCE)) %>%
+  ggplot(aes(x = PREVAILING_WAGE, color = PW_SOURCE)) +
+  geom_freqpoly(binwidth=10000, fill="darkgreen") +
+  coord_cartesian(xlim = c(0, 200000),
+                  ylim = c(0, 50000)) +
+  scale_fill_discrete(name="Year") +
+  labs(
+    title = paste("Prevailing Wage Distribution with respect to Source"),
+    y = paste("Number of H-1B applications submitted"),
+    x = paste("Prevailing Wage")
+    
+    ) +
+  theme(legend.position = "bottom") +
+  guides(
+    color = guide_legend(
+      nrow = 1,
+      override.aes = list(size = 4)
+    )
+  )
+# uniqdashc(h1b_tidy, PW_UNIT_OF_PAY )
+```
+We can see that the Prevailing Wage source OES has higher wages compared to other sources.
+
+## 8. Is there a linear relationship between the prevailing wage and the proposed wage?
+
+```{r wage_plot, echo=FALSE, message=FALSE, warning=FALSE}
+h1b_tidy %>%
+   ggplot(aes(x=PREVAILING_WAGE, y=WAGE_RATE_OF_PAY_FROM, color = `CASE_STATUS`)) +
+   geom_smooth() +
+  labs(
+    title = paste("Prevailing Wage vs Proposed Wage"),
+    x = paste("Employer Proposed Wage"),
+    y = paste("Prevailing Wage")
+    ) + 
+  scale_y_continuous(labels = scales::comma) +
+  scale_x_continuous(labels = scales::comma) +
+  coord_flip()
+  
+```
+
+As expected, there is a positive linear relationship between the prevailing and the proposed wages. In the case of denied VISA applications, the proposed wage is slightly higher than the prevailing wage after 200,000, which might be considered the cause of denial.
+
+## 9. How is the proposed wage distributed among popular jobs?
+
+```{r wage_jobs, echo=FALSE, message=FALSE, warning=FALSE}
+h1b_tidy %>%
+  filter(SOC_NAME %in% top10_jobs$SOC_NAME) %>%
+  ggplot() +
+  geom_boxplot(
+    mapping = aes(
+                  x=reorder(SOC_NAME, WAGE_RATE_OF_PAY_FROM, FUN = median),
+                  y=WAGE_RATE_OF_PAY_FROM
+                  )
+               ) +
+    labs(
+    title = paste("Prposed Wage Distribution of Most Popular Jobs"),
+    y = paste("Proposed Wage"),
+    x = paste("Job Name")
+    ) + 
+  # coord_cartesian(ylim=c(0, 100000)) +
+  coord_flip(ylim=c(50000, 120000))
+
+```
+
+We can see that although Computer Occupation is the most popular jobs, Analysts have a higher median of proposed wage and also has the most variance in wage.
+
+## 10. Is there a dependence between the Case status and submission month?
+
+```{r case_status_month, echo=FALSE, message=FALSE, warning=FALSE}
+h1b_tidy %>%
+  count(CASE_SUBMITTED_MONTH, CASE_STATUS) %>%
+  ggplot(aes(CASE_SUBMITTED_MONTH, CASE_STATUS, fill=n)) +
+  scale_x_continuous(breaks=seq(1,12,1), labels=month.abb) +
+  geom_tile() +
+  labs(
+  title = paste("Case Status vs Submission Month"),
+  y = paste("Case Status"),
+  x = paste("Submission Month")
+  ) +
+  scale_fill_continuous(name="count")
+  # coord_cartesian(ylim=c(0, 100000)) +
+  # coord_flip(ylim=c(50000, 120000))
+  
+```
+
+We can observe that March has the most number of certified VISA applications. However, we cannot see a definite relationship between the months and the case status.
+
+
+## 11. How does the Case status co-vary with Job count?
+
+```{r case_status_willful_violation, echo=FALSE, message=FALSE, warning=FALSE}
+h1b_tidy %>%
+  filter(SOC_NAME %in% top10_jobs$SOC_NAME) %>%
+  # count(WILLFUL_VIOLATOR, CASE_STATUS) %>%
+  ggplot() +
+  geom_count(aes(x=SOC_NAME, y=CASE_STATUS)) +
+  coord_flip() +
+  scale_y_discrete(breaks=c("CERTIFIED", "CERTIFIEDWITHDRAWN",
+                            "DENIED", "WITHDRAWN"),
+                   labels=c("CERTIFIED", "CERTIFIED\nWITHDRAWN",
+                            "DENIED", "WITHDRAWN")) +
+  labs(
+  title = paste("Covariance between Case Status and Job Name"),
+  y = paste("Case Status"),
+  x = paste("Job Name")
+  )
+  
+```
+We found out earlier that Computer occupation is the most popular job requested for H-1B VISA. Here, we can observe that it is also the most certified job.
+
+## 12. How does the monthly trend in popular jobs look like?
+
+```{r job_month, echo=FALSE, message=FALSE, warning=FALSE}
+h1b_tidy %>%
+  filter(SOC_NAME %in% top10_jobs$SOC_NAME) %>%
+  count(CASE_SUBMITTED_MONTH, SOC_NAME) %>%
+  ggplot(aes(CASE_SUBMITTED_MONTH, SOC_NAME, fill=n)) +
+  scale_x_continuous(breaks=seq(1,12,1), labels=month.abb) +
+  geom_tile() +
+  labs(
+  title = paste("Monthly trend in Popular Jobs"),
+  y = paste("Job Name"),
+  x = paste("Month")
+  ) +
+  scale_fill_continuous(name="count")
+  # coord_cartesian(ylim=c(0, 100000)) +
+  # coord_flip(ylim=c(50000, 120000))
+  
+```
+
+We can observe that the months from January to March receive many applications requesting jobs Computer Occupation and Analysts. 
+
+## 13. How are the states and the case status related?
+
+```{r states_dist_case, echo=FALSE, warning=FALSE, message=FALSE}
+
+top10_states$EMPLOYER_STATE<-
+  factor(top10_states$EMPLOYER_STATE,
+  levels=top10_states$EMPLOYER_STATE[order(top10_states$APPLICATIONS_COUNT)])
+
+h1b_tidy %>%
+  filter(EMPLOYER_STATE %in% top10_states$EMPLOYER_STATE) %>%
+  ggplot(aes(x=forcats::fct_infreq(EMPLOYER_STATE), y=..prop.., group=1)) +
+   geom_bar() +
+  facet_wrap(~CASE_STATUS) +
+  labs(
+    title = paste("State Distribution"),
+    y = paste("Proportion"),
+    x = paste("Employer State")
+    )
+```
+We can see that California leads other states in both certification and denial. This is because the number of applications in California is high.
+
+```{r case_status_dist, echo=FALSE, warning=FALSE, message=FALSE}
+h1b_tidy %>%
+  filter(EMPLOYER_STATE %in% top10_states$EMPLOYER_STATE) %>%
+  ggplot(aes(x = forcats::fct_infreq(CASE_STATUS), y=..prop.., group=1)) +
+   geom_bar() +
+  facet_wrap(~EMPLOYER_STATE, nrow = 4) +
+  coord_flip() +
+  labs(
+    title = paste("Case Status Distribution"),
+    y = paste("Proportion"),
+    x = paste("Case Status")
+    )
+```
+
+We can see that most of the applications are certified and is not dependent on the Employer state. So, we can conclude that there is no strong relationship between the case status and the employer state.
+
+# Conclusions
+
+Hence, several transformations and explorations were done on the `h1b` data
+by initially converting it into appropriate form (tidying, grouping and 
+removal of irrelevant columns).
+
+We applied exploratory data analysis using various
+data transformation and visualization techniques. We were able to answer several
+questions about the data. These key findings are summarized below:
+
+1. Infosys Limited has submitted the most number of H-1B VISA Applications and the top wage sponsor.
+2. Computer Occupation occupies more than 50% of the job among the top 10 most popular VISA applications.
+3. H-1B applications submitted in July to September are extremely low compared to other months. Most applications are submitted in March.
+4. Being declared as H-1B dependent might reduce the chances of certification.
+5. Both types of wages approximately follow the normal distribution with mean at around 60000 to 80000.
+6. Most companies request only a few numbers of workers (1-3).
+7. OES has higher wages compared to other sources.
+8. There is a positive linear relationship between the prevailing and the proposed wages.
+9. Although Computer Occupation is the most popular job, Analysts have a higher median of the proposed wage and have the most variance in wages.
+10. March has the most number of certified VISA applications. However, we cannot see a definite relationship between the months and the case status.
+11. Computer occupation is the most popular and the most certified job in terms of H-1B Applications.
+12. The months January to March receive many applications requesting for jobs Computer Occupation and Analysts.
+13. There is not any strong relationship between the case status and the employer state.
+
+\newpage
+
+# Appendices
+
+## Data Dictionary
+
+```{r data-dict, echo=FALSE, warning=FALSE, message=FALSE}
+data_dict <- read_csv('h1b_data_dict.csv') 
+pander(data_dict)
+```
+

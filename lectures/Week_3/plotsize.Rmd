@@ -1,0 +1,52 @@
+---
+title: "Resizing plots"
+author: "Mick McQuaid"
+output:
+  pdf_document:
+latex_engine: xelatex
+fig_width: 6
+fig_height: 4
+---
+
+This file is based on the blog post at
+[https://sebastiansauer.github.io/figure_sizing_knitr/](https://sebastiansauer.github.io/figure_sizing_knitr/)
+
+```{r initial sizing}
+knitr::opts_chunk$set(fig.width=12,fig.height=8)
+```
+
+The first plot follows.
+
+```{r fig1, fig.height=3,fig.width=5}
+plot(pressure)
+```
+
+The second plot follows.
+
+```{r fig2, fig.height=3,fig.width=3,fig.align="center"}
+plot(pressure)
+```
+
+The third plot follows.
+
+```{r fig3, fig.width=5,fig.asp=0.62}
+plot(pressure)
+```
+
+The fourth plot follows.
+
+```{r fig4,fig.height=4,fig.width=3}
+plot(pressure)
+```
+
+The fifth plot follows. Note that the specification in percentage is allowed if you render straight to pdf but may not work if you render first to html.
+
+```{r fig5,out.width='40%'}
+plot(pressure)
+```
+
+Change figure sizes like this:
+
+```
+![name](file.jpg){width=50%}
+```

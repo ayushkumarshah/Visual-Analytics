@@ -1,0 +1,98 @@
+---
+title: "homework ii"
+author: "Ayush Kumar Shah"
+date: '2020-09-11'
+output:
+  pdf_document:
+    latex_engine: xelatex
+header-includes: \usepackage{booktabs}
+---
+
+```{r echo=FALSE}
+# This chunk is just to make it possible to shrink the typeface in succeeding chunks. Mainly this will be used for the crosstabs.
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+```
+
+
+# Introduction
+(Introductory text should go here.)
+
+# Initialization
+Here we load the tidyverse packages and the `data.table` package and load the nyc311 data set. Then we fix the column names of the nyc311 data so that they have no spaces.
+
+```{r initialize}
+library(tidyverse)
+library(data.table)
+# fast for when you are starting out:
+nyc311<-fread("311_Service_Requests_from_2010_to_Present.csv",nrow=10000)
+# after you get going:
+# nyc311<-fread("311_Service_Requests_from_2010_to_Present.csv")
+# names(nyc311)<-names(nyc311) %>%
+  stringr::str_replace_all("\\s", ".")
+```
+
+# Description
+Here we describe the data, showing both a sample and a data dictionary.
+
+## The head of the table
+Here we produce a table of just some relevant columns of data.
+
+```{r tabulate, results="asis"}
+library(xtable)
+options(xtable.comment=FALSE)
+options(xtable.booktabs=TRUE)
+narrow<-nyc311 %>%
+  select(Agency,
+	 Complaint.Type,
+	 Descriptor,
+	 Incident.Zip,
+	 Status,
+	 Borough)
+xtable(head(narrow))
+```
+
+## Data Dictionary
+(Here is where you s s should put the data dictionary.)
+
+# Exploration
+Here we explore the columns in the data set.
+
+(A description of the following plot should go here.)
+```{r explore}
+bigAgency <- narrow %>%
+  group_by(Agency) %>%
+  summarize(count=n()) %>%
+  filter(count>1000)
+bigAgency$Agency<-factor(bigAgency$Agency,
+  levels=bigAgency$Agency[order(bigAgency$count)])
+p<-ggplot(bigAgency,aes(x=Agency,y=count)) +
+   geom_bar(stat="identity") +
+   coord_flip()
+p
+```
+
+(More plots should follow here.)
+
+Next we include a crosstabulation.
+
+```{r crosstabs, size='footnotesize'}
+xtabA<-dplyr::filter(narrow,
+  Complaint.Type=='HEATING' |
+  Complaint.Type=='GENERAL CONSTRUCTION' |
+  Complaint.Type=='PLUMBING'
+)
+xtabB<-select(xtabA,Borough,"Complaint.Type")
+library(gmodels)
+CrossTable(xtabB$Borough,xtabB$'Complaint.Type')
+```
+
+(Some discussion of the above crosstab should follow.)
+
+(More crosstabs or corrplots should follow.)
+
+# Conclusion
+(Tell what you did in this document here.)

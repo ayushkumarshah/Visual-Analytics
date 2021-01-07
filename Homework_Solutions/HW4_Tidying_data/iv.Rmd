@@ -1,0 +1,298 @@
+---
+title: "homework iv"
+author: "Ayush Kumar Shah"
+date: "2020-09-23"
+output:
+    pdf_document:
+      latex_engine: xelatex
+      includes:
+        in_header: header.tex
+header-includes:
+  \usepackage{booktabs}
+---
+
+```{r echo=FALSE}
+# This chunk is just to make it possible to shrink the typeface in succeeding chunks. Mainly this will be used for the crosstabs.
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+```
+
+# Introduction
+
+In this report, we tidy the `nyc311` data by removing the infelicities present in 
+it using the package `tidyr`, which is a member of the `tidyverse` package. We
+also introduce other related datasets, which is connectable to the nyc311 dataset.
+
+The two additional datasets introduced in this report are:
+
+1. Projected Population 2010-2040 - Total By Age Groups
+2. 2005 - 2015 Graduation Outcomes - Department of Education
+
+Both of these datasets were obtained from the NYC OpenData. Also, they both 
+contain the column `Borough` which makes them connectable to the `nyc311` data.
+
+# Tidying the data
+
+It is important to have a tidy data for easy analysis and exploration purposes.
+Generally, the data is untidy as it may be created for easy entry or may have
+higher performance. However, it is difficult to analyze such data and hence we
+make them tidy before analysis. 
+
+To make the data tidy, we must simply ensure that the data follows these three
+interrelated rules:
+
+1. Each variable must have its own column.
+2. Each observation must have its own row.
+3. Each value must have its own cell.
+
+
+```{r initialize, include=FALSE}
+library(tidyverse)
+library(data.table)
+if (!require(kableExtra)){
+  install.packages('kableExtra', dependencies = TRUE)
+  library(kableExtra)
+}
+if (!require(pander)){
+  install.packages('pander', dependencies = TRUE)
+  library(pander)
+}
+```
+
+# Tidying the nyc311 data
+
+## Read the nyc311 data
+
+We load the nyc311 data set. Then we fix the column names of the nyc311 data so 
+that they have no spaces.
+
+```{r read_nyc311_data}
+nyc311<-fread("311_Service_Requests_from_2010_to_Present.csv",
+              na.strings=c("","NA"))
+names(nyc311)<-names(nyc311) %>%
+stringr::str_replace_all("\\s", ".")
+# mini311<-nyc311[sample(nrow(nyc311),10000),]
+# write_csv(mini311,"mini311.csv")
+# sample<-fread("mini311.csv", na.strings=c("","NA"))
+```
+
+## Viewing the data
+
+Let's view the head of the nyc311 data to guess possible untidiness in the data.
+
+```{r display_data}
+pander(head(nyc311))
+```
+
+## Checking duplicates
+
+We check duplicates by first removing the `Unique.Key` variable since all the 
+values are unique in the column.
+
+Since `all_equal()` takes a very long time to compare the two data frames, we 
+simply compare the number of rows in the main and non duplicated data frames 
+using `nrow()`.
+
+```{r duplicates, echo=FALSE}
+nyc311nodups <- nyc311 %>%
+  select(-Unique.Key) %>%
+  distinct()
+
+# all_equal(nyc311nodups, nyc311)
+
+cat("Number of rows in original nyc311 dataframe =", nrow(nyc311))
+cat("\nNumber of rows in non duplicated nyc311 dataframe =", nrow(nyc311nodups))
+cat("\nDuplicate observations present =", nrow(nyc311nodups) < nrow(nyc311))
+```
+
+We can see that there are duplicate observations. So, we use the non duplicated
+data frame created above `nyc311nodups` in the further steps. 
+
+\newpage
+## Remove unspecified Borough.
+
+```{r unspecified_borough}
+# View the Borough counts
+nyc311nodups %>%
+  group_by(Borough) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  pander()
+
+# Remove rows with Unspecified Borough
+nyc311_b <- nyc311nodups %>% 
+  filter(Borough != "Unspecified")
+```
+
+We can see that there is a significant number of observations with Unspecified 
+Borough. Hence, those observations have been removed using `filter()`.
+
+## Separating Created.Date to mulitple Columns
+
+- We separate `Created.Date` into columns `Year`, `Month`, `Day`, and `Time`.
+However, we do not remove the original variable `Created.Date`
+since it may be used in the calculation of response time later.
+
+- We again calculate `Hours` from the `Time` variable using `POSIXlt` class.
+
+This separation is done so that we can easily analyze different trends in the 
+data variables later based on year, month, day or hour of day.
+
+```{r date_time}
+nyc311_time <- nyc311_b %>% 
+  separate(Created.Date, into = c("Created.Month", "Created.Day", "Created.Year"), 
+           sep = "/", convert = TRUE, remove = FALSE) %>%
+  separate(Created.Year, into = c("Created.Year", "time", "Period"),
+           sep=" ", convert = TRUE) %>%
+  unite(Created.Time, time, Period, sep = " ") %>%
+  mutate(Created.Hour = as.POSIXlt(Created.Time, format="%I:%M:%S %p")$hour)
+
+nyc311_time %>% 
+  select(Created.Date, Created.Year, Created.Month, Created.Day, Created.Time, Created.Hour) %>%
+  head(10) %>%
+  pander()
+```
+
+The above table shows a sample of the data frame after applying the operations 
+mentioned above.
+
+## Remove Columns
+
+### Redundant columns
+
+Let's view some columns which have redundant information. 
+
+```{r redundant_col}
+nyc311_time %>% 
+  select(Street.Name, Incident.Address, Latitude, Longitude, Location,
+         Facility.Type, Location.Type, Borough, Park.Borough, Community.Board) %>%
+  head() %>%
+  pander()
+```
+
+
+### Columns with very few data
+
+Let's view the counts of the non empty values in each column. We only display 
+the columns which have counts less than 65% of the total observations.
+
+```{r count}
+non_na_count <- data.frame(colSums(!is.na(nyc311_time)))
+colnames(non_na_count) <- "Non.NA.Count"
+non_na_count %>%
+  arrange(Non.NA.Count) %>%
+  filter(Non.NA.Count < 0.65 * nrow(nyc311_time)) %>%
+  pander()
+```
+
+### Removing the columns
+
+Let's remove the redundant columns, the columns with very less non null data and
+also the columns which are not relevant or useful.
+
+```{r remove_col}
+nyc311_clean <- 
+  nyc311_time %>% 
+  select(-c(Street.Name, Location, Facility.Type, Resolution.Action.Updated.Date,
+            `X.Coordinate.(State.Plane)`, `Y.Coordinate.(State.Plane)`,
+            Park.Borough, Community.Board, Ferry.Direction, Garage.Lot.Name, 
+            Landmark, Ferry.Terminal.Name, Vehicle.Type, Taxi.Company.Borough, 
+            Bridge.Highway.Name, Road.Ramp,
+            Bridge.Highway.Segment, Bridge.Highway.Direction, Taxi.Pick.Up.Location, 
+            Intersection.Street.1, Intersection.Street.2), -c(33:43))
+```
+
+
+## Viewing columns of the tidied nyc311 dataset
+
+```{r view_tidy}
+pander(data.frame(colnames(nyc311_clean)))
+```
+
+## Save the tidied nyc311 dataset
+
+```{r save}
+write_csv(nyc311_clean, 'tidied_nyc311.csv')
+```
+
+
+
+\newpage
+# Other datasets
+
+## Read the datasets
+
+The two additional datasets introduced in this report are:
+
+### 1. Projected Population 2010-2040 - Total By Age Groups
+
+Projected total New York City population for five intervals from 2010 through 
+2040 by Borough, broken down by 18 age cohorts. 
+(Age groups may not add up to the total due to rounding.)
+
+This dataset is introduced so that the population and age group information in 
+the Borough can be known in correlation to the complaints in the nyc311 data.
+
+### 2. 2005 - 2015 Graduation Outcomes - Department of Education
+
+Graduation results for all students by year; cohorts of 2001 through 2011 
+(Classes of 2005 through 2015). Graduation Outcomes as Calculated by the New 
+York State Education Department. The New York State calculation method was first
+adopted for the Cohort of 2001 (Class of 2005).
+
+Graduates are defined as those students earning either a Local or Regents 
+diploma and exclude those earning either a special education (IEP) diploma or GED.
+
+This dataset is introduced so that the educational status of the people in 
+different Borough is available for further analysis in correlation with the
+nyc311 data.
+
+```{r read_other_data}
+nyc_popn <- read_csv('Projected_Population_2010-2040_-_Total_By_Age_Groups.csv')
+
+## 2005-15 graduation
+nyc_grad <- read_csv('https://data.cityofnewyork.us/resource/qk7d-gecv.csv') 
+```
+
+
+## Viewing the datasets
+
+```{r view_data, echo=FALSE}
+pander(head(nyc_popn), 
+       caption = "Projected_Population 2010-2040 By AgeGroups")
+```
+
+```{r view_data2}
+nyc_grad %>%
+  select(1:5) %>%
+  head() %>%
+  pander(caption="2005-2015 Graduation Outcomes - Department of Education")
+```
+
+## Tidying the population dataset `nycpopn`
+
+### Gathering the years
+
+We can see that the years need to be gathered together in the `nyc_popn` data.
+
+```{r gathering}
+nyc_popn_tidy <- 
+  nyc_popn %>% 
+  gather('2010':'2040', key="Year", value="Population")
+
+pander(head(nyc_popn_tidy, 10), caption = "Tidied Population data")
+```
+
+# Conclusion
+
+Hence, we tidied the `nyc311` data by removing duplicate values, gathering and
+spreading required columns like Created.Date using `tudyr` package. We also 
+removed the redundant columns and columns with very little or irrelevant information.
+
+Finally, we also loaded two related datasets which have important population and
+education status information useful for further analysis later in connection with
+the original `nyc311` dataset. The population dataset was also tidied by gathering
+the years.

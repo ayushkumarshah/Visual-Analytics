@@ -1,0 +1,1358 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Chapter 11},
+  pdfauthor={Ayush Kumar Shah},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\title{Chapter 11}
+\author{Ayush Kumar Shah}
+\date{10/2/2020}
+
+\begin{document}
+\maketitle
+
+\hypertarget{strings-and-regular-expressions-with-stringr}{%
+\section{Strings and regular expressions with
+stringr}\label{strings-and-regular-expressions-with-stringr}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(tidyverse)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## -- Attaching packages -------------------------- tidyverse 1.3.0 --
+\end{verbatim}
+
+\begin{verbatim}
+## v ggplot2 3.3.2     v purrr   0.3.4
+## v tibble  3.0.3     v dplyr   1.0.2
+## v tidyr   1.1.2     v stringr 1.4.0
+## v readr   1.3.1     v forcats 0.5.0
+\end{verbatim}
+
+\begin{verbatim}
+## -- Conflicts ----------------------------- tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(stringr)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{defining-strings}{%
+\section{Defining strings}\label{defining-strings}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{(string1 \textless{}{-}}\StringTok{ "This is a string"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "This is a string"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{(string2 \textless{}{-}}\StringTok{ \textquotesingle{}To put a "quote" inside a string, use single quotes\textquotesingle{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "To put a \"quote\" inside a string, use single quotes"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{(string3 \textless{}{-}}\StringTok{ "To put a }\CharTok{\textbackslash{}"}\StringTok{quote}\CharTok{\textbackslash{}"}\StringTok{ inside a string, use single quotes"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "To put a \"quote\" inside a string, use single quotes"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{(string4 \textless{}{-}}\StringTok{ "To put a }\CharTok{\textbackslash{}\textquotesingle{}}\StringTok{quote}\CharTok{\textbackslash{}\textquotesingle{}}\StringTok{ inside a string, use single quotes"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "To put a 'quote' inside a string, use single quotes"
+\end{verbatim}
+
+\hypertarget{to-see-the-raw-string}{%
+\section{To see the raw string:}\label{to-see-the-raw-string}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{writeLines}\NormalTok{(string1)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## This is a string
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{writeLines}\NormalTok{(string2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## To put a "quote" inside a string, use single quotes
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{writeLines}\NormalTok{(string3)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## To put a "quote" inside a string, use single quotes
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{writeLines}\NormalTok{(string4)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## To put a 'quote' inside a string, use single quotes
+\end{verbatim}
+
+\hypertarget{special-characters}{%
+\subsection{Special characters}\label{special-characters}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{?}\StringTok{\textquotesingle{}"\textquotesingle{}}
+\CommentTok{\# OR}
+\NormalTok{?}\StringTok{"\textquotesingle{}"}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{functions}{%
+\section{Functions}\label{functions}}
+
+\begin{itemize}
+\tightlist
+\item
+  basic: 39 string functions beginning with str\_
+\item
+  advanced: about 200 functions starting with stri\_
+\end{itemize}
+
+\hypertarget{string-length}{%
+\subsection{String Length}\label{string-length}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_length}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"a"}\NormalTok{, }\StringTok{"R for data science"}\NormalTok{, }\OtherTok{NA}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]  1 18 NA
+\end{verbatim}
+
+\hypertarget{combining-strings}{%
+\subsection{Combining Strings}\label{combining-strings}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_c}\NormalTok{(}\StringTok{"x"}\NormalTok{, }\StringTok{"y"}\NormalTok{, }\StringTok{"z"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "xyz"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#\textgreater{} [1] "xyz"}
+\KeywordTok{str\_c}\NormalTok{(}\StringTok{"x"}\NormalTok{, }\StringTok{"y"}\NormalTok{, }\DataTypeTok{sep =} \StringTok{", "}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "x, y"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"abc"}\NormalTok{, }\OtherTok{NA}\NormalTok{)}
+\KeywordTok{str\_c}\NormalTok{(}\StringTok{"|{-}"}\NormalTok{, x, }\StringTok{"{-}|"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "|-abc-|" NA
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_c}\NormalTok{(}\StringTok{"|{-}"}\NormalTok{, }\KeywordTok{c}\NormalTok{(}\StringTok{"abc"}\NormalTok{, }\StringTok{"def"}\NormalTok{), }\StringTok{"{-}|"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "|-abc-|" "|-def-|"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_c}\NormalTok{(}\StringTok{"|{-}"}\NormalTok{, }\KeywordTok{str\_replace\_na}\NormalTok{(x), }\StringTok{"{-}|"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "|-abc-|" "|-NA-|"
+\end{verbatim}
+
+\hypertarget{vectors-of-strings}{%
+\subsection{Vectors of strings}\label{vectors-of-strings}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{c}\NormalTok{(}\StringTok{"x"}\NormalTok{, }\StringTok{"y"}\NormalTok{, }\StringTok{"z"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "x" "y" "z"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_c}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"x"}\NormalTok{, }\StringTok{"y"}\NormalTok{, }\StringTok{"z"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "x" "y" "z"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_c}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"x"}\NormalTok{, }\StringTok{"y"}\NormalTok{, }\StringTok{"z"}\NormalTok{), }\DataTypeTok{collapse=}\StringTok{""}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "xyz"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_c}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"x"}\NormalTok{, }\StringTok{"y"}\NormalTok{, }\StringTok{"z"}\NormalTok{), }\DataTypeTok{collapse=}\StringTok{","}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "x,y,z"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_c}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"x"}\NormalTok{, }\StringTok{"y"}\NormalTok{, }\StringTok{"z"}\NormalTok{), }\KeywordTok{c}\NormalTok{(}\StringTok{"a"}\NormalTok{, }\StringTok{"b"}\NormalTok{, }\StringTok{"c"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "xa" "yb" "zc"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_c}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"x"}\NormalTok{, }\StringTok{"y"}\NormalTok{, }\StringTok{"z"}\NormalTok{), }\KeywordTok{c}\NormalTok{(}\StringTok{"a"}\NormalTok{, }\StringTok{"b"}\NormalTok{, }\StringTok{"c"}\NormalTok{), }\DataTypeTok{collapse=}\StringTok{""}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "xaybzc"
+\end{verbatim}
+
+\hypertarget{if-inside-str_c}{%
+\subsection{If inside str\_c}\label{if-inside-str_c}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{name \textless{}{-}}\StringTok{ "Hadley"}
+\NormalTok{time\_of\_day \textless{}{-}}\StringTok{ "morning"}
+\NormalTok{birthday \textless{}{-}}\StringTok{ }\OtherTok{FALSE}
+\KeywordTok{str\_c}\NormalTok{(}
+\StringTok{"Good "}\NormalTok{, time\_of\_day, }\StringTok{" "}\NormalTok{, name,}
+\ControlFlowTok{if}\NormalTok{ (birthday) }\StringTok{" and HAPPY BIRTHDAY"}\NormalTok{,}
+\StringTok{"."}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Good morning Hadley."
+\end{verbatim}
+
+\hypertarget{substrings}{%
+\subsection{Substrings}\label{substrings}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Apple"}\NormalTok{, }\StringTok{"Banana"}\NormalTok{, }\StringTok{"Pear"}\NormalTok{)}
+\KeywordTok{str\_sub}\NormalTok{(x, }\DecValTok{1}\NormalTok{, }\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "App" "Ban" "Pea"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_sub}\NormalTok{(x, }\DecValTok{{-}3}\NormalTok{, }\DecValTok{{-}1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "ple" "ana" "ear"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_sub}\NormalTok{(x, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{) \textless{}{-}}\StringTok{ }\KeywordTok{str\_to\_lower}\NormalTok{(}\KeywordTok{str\_sub}\NormalTok{(x, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{))}
+\NormalTok{x}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "apple"  "banana" "pear"
+\end{verbatim}
+
+\hypertarget{locales}{%
+\subsection{Locales}\label{locales}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_to\_upper}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"i"}\NormalTok{, }\StringTok{"ı"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "I" "I"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#\textgreater{} [1] "I" "I"}
+\KeywordTok{str\_to\_upper}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"i"}\NormalTok{, }\StringTok{"ı"}\NormalTok{), }\DataTypeTok{locale =} \StringTok{"tr"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "İ" "I"
+\end{verbatim}
+
+\hypertarget{regular-expressions}{%
+\subsection{Regular expressions}\label{regular-expressions}}
+
+\texttt{str\_view} requires htmlwidgets and its dependencies.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# install.packages("htmlwidgets", dependencies = TRUE)}
+\KeywordTok{library}\NormalTok{(htmlwidgets)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"apple"}\NormalTok{, }\StringTok{"banana"}\NormalTok{, }\StringTok{"pear"}\NormalTok{)}
+\KeywordTok{str\_view}\NormalTok{(x, }\StringTok{"an"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## PhantomJS not found. You can install it with webshot::install_phantomjs(). If it is installed, please make sure the phantomjs executable can be found via the PATH variable.
+\end{verbatim}
+
+\hypertarget{htmlwidget-55856640de0d870821f7}{}
+\begin{str_view}
+
+\end{str_view}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view}\NormalTok{(x, }\StringTok{".a."}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-6c6d16a1c4653efe3c3a}{}
+\begin{str_view}
+
+\end{str_view}
+
+. matches any character expect enw line. \textbf{Note: ana doesn't match
+since (no overlapping)}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"abc"}\NormalTok{, }\StringTok{"a.c"}\NormalTok{, }\StringTok{"bef"}\NormalTok{), }\StringTok{"a}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{.c"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-debcf8aa0c27c210dd5e}{}
+\begin{str_view}
+
+\end{str_view}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{(x \textless{}{-}}\StringTok{ "a}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{b"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "a\\b"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{writeLines}\NormalTok{(x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## a\b
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view}\NormalTok{(x, }\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}\textbackslash{}\textbackslash{}}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-cc611a856e1ef0c61cf4}{}
+\begin{str_view}
+
+\end{str_view}
+
+\begin{itemize}
+\tightlist
+\item
+  \^{} to match the start of the string.
+\item
+  • \$ to match the end of the string.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"apple"}\NormalTok{, }\StringTok{"banana"}\NormalTok{, }\StringTok{"pear"}\NormalTok{)}
+\KeywordTok{str\_view}\NormalTok{(x, }\StringTok{"\^{}a"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-43566920f1a8fd5b819c}{}
+\begin{str_view}
+
+\end{str_view}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view}\NormalTok{(x, }\StringTok{"a$"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-e6e75a59f25a8eabd223}{}
+\begin{str_view}
+
+\end{str_view}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"apple pie"}\NormalTok{, }\StringTok{"apple"}\NormalTok{, }\StringTok{"apple cake"}\NormalTok{)}
+\KeywordTok{str\_view}\NormalTok{(x, }\StringTok{"\^{}apple$"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-f5af846e4c9182f75aab}{}
+\begin{str_view}
+
+\end{str_view}
+
+\hypertarget{chaacter-class-and-alternatives}{%
+\subsubsection{Chaacter class and
+alternatives}\label{chaacter-class-and-alternatives}}
+
+\begin{itemize}
+\tightlist
+\item
+  \d matches any digit.
+\item
+  \s matches any whitespace (e.g., space, tab, newline).
+\item
+  {[}abc{]} matches a, b, or c.
+\item
+  {[}\^{}abc{]} matches anything except a, b, or c.
+\item
+  a \textbar{} b means a or b, where a and b are strings.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\StringTok{"grey"}\NormalTok{, }\StringTok{"gray"}\NormalTok{), }\StringTok{"gr(e|a)y"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-4386ebb57fc6dda7dce5}{}
+\begin{str_view}
+
+\end{str_view}
+
+\hypertarget{repetitions}{%
+\subsubsection{Repetitions}\label{repetitions}}
+
+\begin{itemize}
+\item
+  ? - 0 or 1
+\item
+  \begin{itemize}
+  \item
+    \begin{itemize}
+    \tightlist
+    \item
+      1 or more
+    \end{itemize}
+  \end{itemize}
+\item
+  \begin{itemize}
+  \item
+    \begin{itemize}
+    \tightlist
+    \item
+      0 or more
+    \end{itemize}
+  \end{itemize}
+\item
+  \{n\} - exactly n
+\item
+  \{n, \} - n or more
+\item
+  \{, m\} - nat most m
+\item
+  \{n, m\} - between n and m
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x \textless{}{-}}\StringTok{ "1888 is the longest year in Roman numerals: MDCCCLXXXVIII"}
+\KeywordTok{str\_view}\NormalTok{(x, }\StringTok{"CC?"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-467010902a47193833a3}{}
+\begin{str_view}
+
+\end{str_view}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view}\NormalTok{(x, }\StringTok{"CC+"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-f21464976901fb0e9e18}{}
+\begin{str_view}
+
+\end{str_view}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view}\NormalTok{(x, }\StringTok{\textquotesingle{}C[LX]+\textquotesingle{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-890f3279ec9d8bc3a101}{}
+\begin{str_view}
+
+\end{str_view}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view}\NormalTok{(x, }\StringTok{"C\{2\}"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-46ad665bc4945a22d66c}{}
+\begin{str_view}
+
+\end{str_view}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view}\NormalTok{(x, }\StringTok{"C\{2,\}"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-17d37aafa02636383e52}{}
+\begin{str_view}
+
+\end{str_view}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view}\NormalTok{(x, }\StringTok{"C\{2,3\}"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-af2e94ddabf0f1c6c7af}{}
+\begin{str_view}
+
+\end{str_view}
+
+By default these matches are ``greedy'': they will match the longest
+string possible. You can make them ``lazy,'' matching the shortest
+string possible, by putting a ? after them. This is an advanced feature
+of regular expressions, but it's useful to know that it exists:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view}\NormalTok{(x, }\StringTok{"C\{2,3\}?"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-89598cf01d9763e7a0a0}{}
+\begin{str_view}
+
+\end{str_view}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view}\NormalTok{(x, }\StringTok{\textquotesingle{}C[LX]+?\textquotesingle{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-22be6fe51be48674774a}{}
+\begin{str_view}
+
+\end{str_view}
+
+\hypertarget{groups}{%
+\subsubsection{Groups}\label{groups}}
+
+Example: all fruits that have a repeated pair of letters:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fruit}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "apple"             "apricot"           "avocado"          
+##  [4] "banana"            "bell pepper"       "bilberry"         
+##  [7] "blackberry"        "blackcurrant"      "blood orange"     
+## [10] "blueberry"         "boysenberry"       "breadfruit"       
+## [13] "canary melon"      "cantaloupe"        "cherimoya"        
+## [16] "cherry"            "chili pepper"      "clementine"       
+## [19] "cloudberry"        "coconut"           "cranberry"        
+## [22] "cucumber"          "currant"           "damson"           
+## [25] "date"              "dragonfruit"       "durian"           
+## [28] "eggplant"          "elderberry"        "feijoa"           
+## [31] "fig"               "goji berry"        "gooseberry"       
+## [34] "grape"             "grapefruit"        "guava"            
+## [37] "honeydew"          "huckleberry"       "jackfruit"        
+## [40] "jambul"            "jujube"            "kiwi fruit"       
+## [43] "kumquat"           "lemon"             "lime"             
+## [46] "loquat"            "lychee"            "mandarine"        
+## [49] "mango"             "mulberry"          "nectarine"        
+## [52] "nut"               "olive"             "orange"           
+## [55] "pamelo"            "papaya"            "passionfruit"     
+## [58] "peach"             "pear"              "persimmon"        
+## [61] "physalis"          "pineapple"         "plum"             
+## [64] "pomegranate"       "pomelo"            "purple mangosteen"
+## [67] "quince"            "raisin"            "rambutan"         
+## [70] "raspberry"         "redcurrant"        "rock melon"       
+## [73] "salal berry"       "satsuma"           "star fruit"       
+## [76] "strawberry"        "tamarillo"         "tangerine"        
+## [79] "ugli fruit"        "watermelon"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view}\NormalTok{(fruit, }\StringTok{"(..)}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{1"}\NormalTok{, }\DataTypeTok{match =} \OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-670da3316a98bc338743}{}
+\begin{str_view}
+
+\end{str_view}
+
+\hypertarget{use-of-regular-expressions}{%
+\subsection{Use of regular
+expressions}\label{use-of-regular-expressions}}
+
+\begin{itemize}
+\tightlist
+\item
+  Determine which strings match a pattern.
+\item
+  Find the positions of matches.
+\item
+  Extract the content of matches.
+\item
+  Replace matches with new values.
+\item
+  Split a string based on a match.
+\end{itemize}
+
+\hypertarget{detect-matches}{%
+\subsubsection{Detect matches}\label{detect-matches}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"apple"}\NormalTok{, }\StringTok{"banana"}\NormalTok{, }\StringTok{"pear"}\NormalTok{)}
+\KeywordTok{str\_detect}\NormalTok{(x, }\StringTok{"e"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]  TRUE FALSE  TRUE
+\end{verbatim}
+
+Number of words starting with t
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{sum}\NormalTok{(}\KeywordTok{str\_detect}\NormalTok{(words, }\StringTok{"\^{}t"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 65
+\end{verbatim}
+
+What proportion of common words end with a vowel?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{mean}\NormalTok{(}\KeywordTok{str\_detect}\NormalTok{(words, }\StringTok{"[aeiou]$"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.2765306
+\end{verbatim}
+
+Words without vowels : 2 ways
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Find all words containing at least one vowel, and negate}
+\NormalTok{no\_vowels\_}\DecValTok{1}\NormalTok{ \textless{}{-}}\StringTok{ }\OperatorTok{!}\KeywordTok{str\_detect}\NormalTok{(words, }\StringTok{"[aeiou]"}\NormalTok{)}
+\CommentTok{\# Find all words consisting only of consonants (non{-}vowels)}
+\NormalTok{no\_vowels\_}\DecValTok{2}\NormalTok{ \textless{}{-}}\StringTok{ }\KeywordTok{str\_detect}\NormalTok{(words, }\StringTok{"\^{}[\^{}aeiou]+$"}\NormalTok{)}
+\KeywordTok{identical}\NormalTok{(no\_vowels\_}\DecValTok{1}\NormalTok{, no\_vowels\_}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_subset}\NormalTok{(words, }\StringTok{"\^{}[\^{}aeiou]+$"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "by"  "dry" "fly" "mrs" "try" "why"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# this fails}
+\CommentTok{\# !str\_subset(words, "[aeiou]")}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{subset-using-re-str_subset}{%
+\subsubsection{Subset using RE
+(str\_subset)}\label{subset-using-re-str_subset}}
+
+Equivalent to str\_detect plus indexing
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{words[}\KeywordTok{str\_detect}\NormalTok{(words, }\StringTok{"x$"}\NormalTok{)]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "box" "sex" "six" "tax"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#\textgreater{} [1] "box" "sex" "six" "tax"}
+\KeywordTok{str\_subset}\NormalTok{(words, }\StringTok{"x$"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "box" "sex" "six" "tax"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#\textgreater{} [1] "box" "sex" "six" "tax"}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{in-tibbles}{%
+\subsubsection{In tibbles}\label{in-tibbles}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{df \textless{}{-}}\StringTok{ }\KeywordTok{tibble}\NormalTok{(}
+\DataTypeTok{word =}\NormalTok{ words,}
+\DataTypeTok{i =} \KeywordTok{seq\_along}\NormalTok{(word)}
+\NormalTok{)}
+\NormalTok{df }\OperatorTok{\%\textgreater{}\%}
+\KeywordTok{filter}\NormalTok{(}\KeywordTok{str\_detect}\NormalTok{(words, }\StringTok{"x$"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 4 x 2
+##   word      i
+##   <chr> <int>
+## 1 box     108
+## 2 sex     747
+## 3 six     772
+## 4 tax     841
+\end{verbatim}
+
+\texttt{seq\_along} - position of the word in the list.
+
+\hypertarget{count}{%
+\subsubsection{Count}\label{count}}
+
+\textbf{Note: Every operation involves non overlapping matches}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"apple"}\NormalTok{, }\StringTok{"banana"}\NormalTok{, }\StringTok{"pear"}\NormalTok{)}
+\KeywordTok{str\_count}\NormalTok{(x, }\StringTok{"a"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1 3 1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_count}\NormalTok{(x, }\StringTok{"ana"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0 1 0
+\end{verbatim}
+
+Number of vowels per word:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{mean}\NormalTok{(}\KeywordTok{str\_count}\NormalTok{(words, }\StringTok{"[aeiou]"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1.991837
+\end{verbatim}
+
+With mutate
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{df }\OperatorTok{\%\textgreater{}\%}
+\KeywordTok{mutate}\NormalTok{(}
+\DataTypeTok{vowels =} \KeywordTok{str\_count}\NormalTok{(word, }\StringTok{"[aeiou]"}\NormalTok{),}
+\DataTypeTok{consonants =} \KeywordTok{str\_count}\NormalTok{(word, }\StringTok{"[\^{}aeiou]"}\NormalTok{)}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 980 x 4
+##    word         i vowels consonants
+##    <chr>    <int>  <int>      <int>
+##  1 a            1      1          0
+##  2 able         2      2          2
+##  3 about        3      3          2
+##  4 absolute     4      4          4
+##  5 accept       5      2          4
+##  6 account      6      3          4
+##  7 achieve      7      4          3
+##  8 across       8      2          4
+##  9 act          9      1          2
+## 10 active      10      3          3
+## # ... with 970 more rows
+\end{verbatim}
+
+\hypertarget{reminder-matches-never-overlap}{%
+\subsubsection{Reminder: Matches never
+overlap}\label{reminder-matches-never-overlap}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_count}\NormalTok{(}\StringTok{"abababa"}\NormalTok{, }\StringTok{"aba"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view}\NormalTok{(}\StringTok{"abababa"}\NormalTok{, }\StringTok{"aba"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-aa8d8aefb9d859f44874}{}
+\begin{str_view}
+
+\end{str_view}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_view\_all}\NormalTok{(}\StringTok{"abababa"}\NormalTok{, }\StringTok{"aba"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-84e2f8de2e035cacd5d8}{}
+\begin{str_view}
+
+\end{str_view}
+
+\hypertarget{extract-matches}{%
+\subsubsection{Extract Matches}\label{extract-matches}}
+
+Sentences (comes with \texttt{stringr} package)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{length}\NormalTok{(sentences)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 720
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{head}\NormalTok{(sentences)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "The birch canoe slid on the smooth planks." 
+## [2] "Glue the sheet to the dark blue background."
+## [3] "It's easy to tell the depth of a well."     
+## [4] "These days a chicken leg is a rare dish."   
+## [5] "Rice is often served in round bowls."       
+## [6] "The juice of lemons makes fine punch."
+\end{verbatim}
+
+Colors
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{colors \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}
+\StringTok{"red"}\NormalTok{, }\StringTok{"orange"}\NormalTok{, }\StringTok{"yellow"}\NormalTok{, }\StringTok{"green"}\NormalTok{, }\StringTok{"blue"}\NormalTok{, }\StringTok{"purple"}
+\NormalTok{)}
+\NormalTok{color\_match \textless{}{-}}\StringTok{ }\KeywordTok{str\_c}\NormalTok{(colors, }\DataTypeTok{collapse =} \StringTok{"|"}\NormalTok{)}
+\NormalTok{color\_match}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "red|orange|yellow|green|blue|purple"
+\end{verbatim}
+
+Since red may be in another word like ordered, add boundary in pattern
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{(color\_words \textless{}{-}}\StringTok{ }\KeywordTok{str\_c}\NormalTok{(}\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{b"}\NormalTok{ , colors, }\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{b"}\NormalTok{, }\DataTypeTok{collapse=}\StringTok{"|"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "\\bred\\b|\\borange\\b|\\byellow\\b|\\bgreen\\b|\\bblue\\b|\\bpurple\\b"
+\end{verbatim}
+
+Color matches
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{has\_color \textless{}{-}}\StringTok{ }\KeywordTok{str\_subset}\NormalTok{(sentences, color\_words)}
+\NormalTok{matches \textless{}{-}}\StringTok{ }\KeywordTok{str\_extract}\NormalTok{(has\_color, color\_words)}
+\KeywordTok{head}\NormalTok{(matches)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "blue"   "blue"   "blue"   "yellow" "green"  "red"
+\end{verbatim}
+
+Sentences wtih 2 colour words.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{more \textless{}{-}}\StringTok{ }\NormalTok{sentences[}\KeywordTok{str\_count}\NormalTok{(sentences, color\_words) }\OperatorTok{\textgreater{}}\StringTok{ }\DecValTok{1}\NormalTok{]}
+\KeywordTok{str\_view\_all}\NormalTok{(more, color\_match)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{htmlwidget-0fb8cce21a5265a58f6e}{}
+\begin{str_view}
+
+\end{str_view}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_extract}\NormalTok{(more, color\_match)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "blue"   "orange"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{str\_extract\_all}\NormalTok{(more, color\_match)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [[1]]
+## [1] "blue" "red" 
+## 
+## [[2]]
+## [1] "orange" "red"
+\end{verbatim}
+
+\hypertarget{str_match}{%
+\subsubsection{str\_match()}\label{str_match}}
+
+Use spacy in Python instead for NLP
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{noun \textless{}{-}}\StringTok{ "(a|the) ([\^{} ]+)"}
+\NormalTok{has\_noun \textless{}{-}}\StringTok{ }\NormalTok{sentences }\OperatorTok{\%\textgreater{}\%}
+\KeywordTok{str\_subset}\NormalTok{(noun) }\OperatorTok{\%\textgreater{}\%}
+\KeywordTok{head}\NormalTok{(}\DecValTok{10}\NormalTok{)}
+\NormalTok{has\_noun }\OperatorTok{\%\textgreater{}\%}
+\KeywordTok{str\_extract}\NormalTok{(noun)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "the smooth" "the sheet"  "the depth"  "a chicken"  "the parked"
+##  [6] "the sun"    "the huge"   "the ball"   "the woman"  "a helps"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{has\_noun }\OperatorTok{\%\textgreater{}\%}
+\KeywordTok{str\_match}\NormalTok{(noun)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##       [,1]         [,2]  [,3]     
+##  [1,] "the smooth" "the" "smooth" 
+##  [2,] "the sheet"  "the" "sheet"  
+##  [3,] "the depth"  "the" "depth"  
+##  [4,] "a chicken"  "a"   "chicken"
+##  [5,] "the parked" "the" "parked" 
+##  [6,] "the sun"    "the" "sun"    
+##  [7,] "the huge"   "the" "huge"   
+##  [8,] "the ball"   "the" "ball"   
+##  [9,] "the woman"  "the" "woman"  
+## [10,] "a helps"    "a"   "helps"
+\end{verbatim}
+
+Using tibbles
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{tibble}\NormalTok{(}\DataTypeTok{sentence =}\NormalTok{ sentences) }\OperatorTok{\%\textgreater{}\%}
+\NormalTok{tidyr}\OperatorTok{::}\KeywordTok{extract}\NormalTok{(}
+\NormalTok{sentence, }\KeywordTok{c}\NormalTok{(}\StringTok{"article"}\NormalTok{, }\StringTok{"noun"}\NormalTok{), }\StringTok{"(a|the) ([\^{} ]+)"}\NormalTok{,}
+\DataTypeTok{remove =} \OtherTok{FALSE}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 720 x 3
+##    sentence                                    article noun   
+##    <chr>                                       <chr>   <chr>  
+##  1 The birch canoe slid on the smooth planks.  the     smooth 
+##  2 Glue the sheet to the dark blue background. the     sheet  
+##  3 It's easy to tell the depth of a well.      the     depth  
+##  4 These days a chicken leg is a rare dish.    a       chicken
+##  5 Rice is often served in round bowls.        <NA>    <NA>   
+##  6 The juice of lemons makes fine punch.       <NA>    <NA>   
+##  7 The box was thrown beside the parked truck. the     parked 
+##  8 The hogs were fed chopped corn and garbage. <NA>    <NA>   
+##  9 Four hours of steady work faced us.         <NA>    <NA>   
+## 10 Large size in stockings is hard to sell.    <NA>    <NA>   
+## # ... with 710 more rows
+\end{verbatim}
+
+\hypertarget{replace-str_replace}{%
+\subsubsection{Replace (str\_replace)}\label{replace-str_replace}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"apple"}\NormalTok{, }\StringTok{"pear"}\NormalTok{, }\StringTok{"banana"}\NormalTok{)}
+\KeywordTok{str\_replace}\NormalTok{(x, }\StringTok{"[aeiou]"}\NormalTok{, }\StringTok{"{-}"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "-pple"  "p-ar"   "b-nana"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#\textgreater{} [1] "{-}pple" "p{-}ar" "b{-}nana"}
+
+\KeywordTok{str\_replace\_all}\NormalTok{(x, }\StringTok{"[aeiou]"}\NormalTok{, }\StringTok{"{-}"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "-ppl-"  "p--r"   "b-n-n-"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"1 house"}\NormalTok{, }\StringTok{"2 cars"}\NormalTok{, }\StringTok{"3 people"}\NormalTok{)}
+\KeywordTok{str\_replace\_all}\NormalTok{(x, }\KeywordTok{c}\NormalTok{(}\StringTok{"1"}\NormalTok{ =}\StringTok{ "one"}\NormalTok{, }\StringTok{"2"}\NormalTok{ =}\StringTok{ "two"}\NormalTok{, }\StringTok{"3"}\NormalTok{ =}\StringTok{ "three"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "one house"    "two cars"     "three people"
+\end{verbatim}
+
+Using backreferences to insert components of the match
+
+Swapping 2nd and 3rd words in each sentence.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentences }\OperatorTok{\%\textgreater{}\%}
+\KeywordTok{str\_replace}\NormalTok{(}\StringTok{"([\^{} ]+) ([\^{} ]+) ([\^{} ]+)"}\NormalTok{, }\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{1 }\CharTok{\textbackslash{}\textbackslash{}}\StringTok{3 }\CharTok{\textbackslash{}\textbackslash{}}\StringTok{2"}\NormalTok{) }\OperatorTok{\%\textgreater{}\%}
+\KeywordTok{head}\NormalTok{(}\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "The canoe birch slid on the smooth planks." 
+## [2] "Glue sheet the to the dark blue background."
+## [3] "It's to easy tell the depth of a well."     
+## [4] "These a days chicken leg is a rare dish."   
+## [5] "Rice often is served in round bowls."
+\end{verbatim}
+
+\hypertarget{splittin-str_split}{%
+\subsubsection{Splittin (str\_split)}\label{splittin-str_split}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentences }\OperatorTok{\%\textgreater{}\%}
+\KeywordTok{head}\NormalTok{(}\DecValTok{5}\NormalTok{) }\OperatorTok{\%\textgreater{}\%}
+\KeywordTok{str\_split}\NormalTok{(}\StringTok{" "}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [[1]]
+## [1] "The"     "birch"   "canoe"   "slid"    "on"      "the"     "smooth" 
+## [8] "planks."
+## 
+## [[2]]
+## [1] "Glue"        "the"         "sheet"       "to"          "the"        
+## [6] "dark"        "blue"        "background."
+## 
+## [[3]]
+## [1] "It's"  "easy"  "to"    "tell"  "the"   "depth" "of"    "a"     "well."
+## 
+## [[4]]
+## [1] "These"   "days"    "a"       "chicken" "leg"     "is"      "a"      
+## [8] "rare"    "dish."  
+## 
+## [[5]]
+## [1] "Rice"   "is"     "often"  "served" "in"     "round"  "bowls."
+\end{verbatim}
+
+To matrix
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentences }\OperatorTok{\%\textgreater{}\%}
+\KeywordTok{head}\NormalTok{(}\DecValTok{5}\NormalTok{) }\OperatorTok{\%\textgreater{}\%}
+\KeywordTok{str\_split}\NormalTok{(}\StringTok{" "}\NormalTok{, }\DataTypeTok{simplify =} \OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      [,1]    [,2]    [,3]    [,4]      [,5]  [,6]    [,7]     [,8]         
+## [1,] "The"   "birch" "canoe" "slid"    "on"  "the"   "smooth" "planks."    
+## [2,] "Glue"  "the"   "sheet" "to"      "the" "dark"  "blue"   "background."
+## [3,] "It's"  "easy"  "to"    "tell"    "the" "depth" "of"     "a"          
+## [4,] "These" "days"  "a"     "chicken" "leg" "is"    "a"      "rare"       
+## [5,] "Rice"  "is"    "often" "served"  "in"  "round" "bowls." ""           
+##      [,9]   
+## [1,] ""     
+## [2,] ""     
+## [3,] "well."
+## [4,] "dish."
+## [5,] ""
+\end{verbatim}
+
+Split n times
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fields \textless{}{-}}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Name: Hadley"}\NormalTok{, }\StringTok{"Country: NZ"}\NormalTok{, }\StringTok{"Age: 35"}\NormalTok{)}
+\NormalTok{fields }\OperatorTok{\%\textgreater{}\%}\StringTok{ }\KeywordTok{str\_split}\NormalTok{(}\StringTok{": "}\NormalTok{, }\DataTypeTok{n =} \DecValTok{2}\NormalTok{, }\DataTypeTok{simplify =} \OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      [,1]      [,2]    
+## [1,] "Name"    "Hadley"
+## [2,] "Country" "NZ"    
+## [3,] "Age"     "35"
+\end{verbatim}
+
+\end{document}

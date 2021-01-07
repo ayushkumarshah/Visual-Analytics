@@ -1,0 +1,12 @@
+---
+title: "Chapter18_model"
+author: "Ayush Kumar Shah"
+date: "10/6/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+

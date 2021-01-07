@@ -1,0 +1,1067 @@
+---
+title: "homework vi"
+author: "Ayush Kumar Shah"
+date: "2020-10-06"
+toc: true
+urlcolor: blue
+output:
+    pdf_document:
+      latex_engine: xelatex
+      includes:
+        in_header: header.tex
+header-includes:
+  \usepackage{booktabs}
+---
+
+```{r echo=FALSE}
+# This chunk is just to make it possible to shrink the typeface in succeeding chunks. Mainly this will be used for the crosstabs.
+
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+knitr::opts_chunk$set(fig.width=12,fig.height=8)
+```
+
+```{r initialize, include=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(data.table)
+if (!require(kableExtra)){
+  install.packages('kableExtra', dependencies = TRUE)
+  library(kableExtra)
+}
+if (!require(pander)){
+  install.packages('pander', dependencies = TRUE)
+  suppressWarnings(suppressPackageStartupMessages(library(pander)))
+}
+```
+
+\newpage
+# Introduction
+
+In this report, the `nyc311` dataset will be analyzed to generate and communicate
+findings about different aspects of the data in an effective and presentable manner. 
+The analysis of the `nyc311` dataset along with two additional related datasets
+will help to identify different existing problems and the causes of increasing complaints.
+The insights from the report will also help the agencies to reduce the
+frequency of complaints and also address the complaints more effectively in the 
+future.
+
+the two data sets introduced in the previous report are 
+connected to the 311 
+data set, using `dplyr`. Before connecting them, several operations are performed on the datasets. 
+
+Also, few tables consisting of an extract of the data of 
+each dataset as well as the final joined dataset are shown. Finally, a data
+dictionary for all the data in each dataset including the final joined dataset
+is also displayed. The connections between the columns will be shown in the 
+next final report.
+
+# Context
+
+The dataset focused in this study is New York’s 311 service requests. 
+The NYC Open Data has made all NYC 311 service requests and complaints publicly 
+available. Open Data is free public data published by New York City agencies and
+other partners. Each City agency has an Open Data Coordinator, who
+serves as the main point of contact for the Open Data Team and the public, and
+works to identify, document, structure, and manage the agency’s public datasets.
+NYC Open Data curates nearly 3,000 different datasets across every facet of life
+in New York City.
+
+The fundamental mission of OpenData is taking what can be complex information, 
+generated from the operation of the largest municipal government in the country,
+and making it accessible to everyone: Open Data for All. Open Data is every New 
+Yorker’s digital library, one that allows them to engage on a more even footing 
+with their government, and build online tools drawing on the information that is 
+shared.
+
+# About the data
+
+## nyc311
+
+The `nyc311` data in this report includes all 311 Service Request Calls from 
+the residents, busineeses and visitors in New York City between the 2003 to 2015. 
+This information is automatically updated daily. In addition, the general public can
+access their website to submit queries in more than 50 languages and can get help in more
+than 175 languages by calling 311. They provide citizens a quick, convenient way to 
+complain about problems in their neighborhoods, and get a response. 
+
+The information hub was launched in February 2003 with an average calls of 2126 
+per day and was designed to filter non-emergency calls away from the emergency 
+phone line, 911. The fundamental goal of `nyc311` is to provide the public with swift and easy 
+access to all New York City government services and information while offering 
+the best customer service.
+
+```{r read_nyc311_data, include=FALSE, warning=FALSE, message=FALSE}
+nyc311<-fread("311_Service_Requests_from_2010_to_Present.csv",
+              na.strings=c("","NA"))
+names(nyc311) <- names(nyc311) %>%
+stringr::str_replace_all("\\s", ".")
+mini311<-nyc311[sample(nrow(nyc311), 10000)]
+write_csv(mini311,"mini311.csv")
+sample<-fread("mini311.csv", na.strings=c("","NA"))
+```
+
+\newpage
+### Data extract: nyc311
+
+Let's view an extract of the `nyc311` data with only a few important columns.
+
+```{r nyc311_extract, echo=FALSE, warning=FALSE, message=FALSE}
+nyc311 %>%
+  select(Created.Date,
+         Agency,
+      	 Complaint.Type,
+      	 Descriptor,
+      	 Incident.Zip,
+      	 Status,
+      	 Borough
+	  ) %>%
+  head(6) %>%
+  pander(caption = "New York City: 311 Service Requests", 
+       split.cells = 5,
+       split.table = Inf)
+```
+
+## Additional data
+
+The two additional datasets introduced in this report are:
+
+1. Projected Population 2010-2040 - Total By Borough and Age Groups: [Source](https://data.cityofnewyork.us/City-Government/Projected-Population-2010-2040-Total-By-Age-Groups/97pn-acdf)
+2. 2005 - 2011 Graduation Outcomes - Borough - Ethnicity: [Source](https://data.cityofnewyork.us/Education/2005-2011-Graduation-Outcomes-Borough-Ethnicity/x2hp-8ukt)
+
+### 1. [Projected Population 2010-2040 - Total By Borough and Age Groups Groups](https://data.cityofnewyork.us/City-Government/Projected-Population-2010-2040-Total-By-Age-Groups/97pn-acdf)
+
+This dataset consists of projected total New York City population for five intervals from 2010 through 
+2040 by Borough, broken down by 18 age cohorts. However, the age groups may not add up to the total due to rounding.
+
+This dataset is introduced so that the population information in each Borough is available 
+during analysis of the nyc311 data, by joining it appropriately with the original `nyc311` data.
+This is achievable since the table contains the `Borough` column.
+
+**Data extract: Population**
+
+```{r extract_popn, echo=FALSE, warning=FALSE, message=FALSE}
+nyc_popn <- read_csv('Projected_Population_2010-2040_-_Total_By_Age_Groups.csv')
+pander(tail(nyc_popn, 6), caption = "Projected Population 2010-2040 by Borough and Age",
+       split.cell=10)
+```
+
+### 2. [2005 - 2011 Graduation Outcomes - Borough - Ethnicity](https://data.cityofnewyork.us/Education/2005-2011-Graduation-Outcomes-Borough-Ethnicity/x2hp-8ukt)
+
+This dataset consists of graduation results for all students by year; cohorts of 2001 through 2007 
+(Classes of 2005 through 2011). Graduation Outcomes are as calculated by the New 
+York State Education Department. The New York State calculation method was first
+adopted for the Cohort of 2001 (Class of 2005).
+
+Graduates are defined as those students earning either a Local or Regents 
+diploma and exclude those earning either a special education (IEP) diploma or GED.
+
+This dataset is introduced so that the educational status of the people in 
+different Borough is available for further analysis in correlation with the
+`nyc311` data. This is achievable since the table contains the `Borough` column.
+
+### Data extract: Graduation
+
+```{r extract_grad, echo=FALSE, warning=FALSE, message=FALSE}
+# pander(head(nyc_grad_tidy), caption = "2005-2011 Graduation Outcomes - Borough", split.table=Inf)
+nyc_grad <- read_csv('2005_-_2011_Graduation_Outcomes_-_Borough_-_Ethnicity.csv') 
+nyc_grad %>%
+  select(1:7) %>%
+  head(6) %>%
+  pander(caption="2005-2015 Graduation Outcomes - Borough",
+         split.table=Inf,
+         split.cell=10)
+```
+
+Both of these datasets were obtained from the 
+[NYC OpenData](https://opendata.cityofnewyork.us/). Also, they both 
+contain the column `Borough` and `Years` which makes them connectable to the `nyc311` data.
+
+# Tidying the data
+
+## Tidying nyc311 data
+
+### Checking duplicates
+
+We check duplicates by first removing the `Unique.Key` variable since all the 
+values are unique in the column.
+
+Since `all_equal()` takes a very long time to compare the two data frames, we 
+simply compare the number of rows in the main and non duplicated data frames 
+using `nrow()`.
+
+```{r duplicates, include=FALSE, warning=FALSE, message=FALSE}
+nyc311nodups <- nyc311 %>%
+  select(-Unique.Key) %>%
+  distinct()
+```
+
+- Number of rows in original nyc311 dataframe = `r nrow(nyc311)`
+
+- Number of rows in non duplicated nyc311 dataframe = `r nrow(nyc311nodups)`
+
+- Duplicate observations present `r nrow(nyc311nodups) < nrow(nyc311)`
+
+We can see that there are duplicate observations. So, we use the non duplicated
+data frame in the further steps which has `r nrow(nyc311nodups)` unique observations
+obtained after removing `r nrow(nyc311) - nrow(nyc311nodups)` duplicate observations.
+
+### Remove unspecified Borough.
+
+```{r unspecified_borough, echo=FALSE, warning=FALSE, message=FALSE}
+# View the Borough counts
+nyc311nodups %>%
+  group_by(Borough) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count)) %>%
+  pander(caption = "Borough distribution")
+
+# Remove rows with Unspecified Borough
+nyc311_b <- nyc311nodups %>% 
+  filter(Borough != "Unspecified")
+```
+
+We can see that there is a significant number of observations with Unspecified 
+Borough. Hence, those observations have been removed using `filter()`.
+
+### Separating Created.Date to mulitple Columns
+
+- We separate `Created.Date` into columns `Created.Year`, `Created.Month`, 
+`Created.Day`, and `Created.Time`.
+
+- We again calculate `Hours` from the `Time` variable as well as `Created.Weekday` 
+using `POSIXlt` class.
+
+- We also calculate the `Resolve.Time.Days` variable by computing the difference
+of `Closed.Date` and `Created.Date`variables.
+
+These separations are done so that we can easily analyze different trends in the 
+data variables later based on year, month, day or hour of day. Also, the response
+time can by analyzed later in relation to other variables.
+
+The table below shows the new time and date variables.
+
+```{r date_time_test, echo=FALSE, message=FALSE, warning=FALSE}
+nyc311_time <- nyc311_b %>% 
+  filter(!is.na(Closed.Date)) %>%
+  separate(Created.Date, into = c("Created.Month", "Created.Day", "Created.Year"), 
+           sep = "/", convert = TRUE, remove = FALSE) %>%
+  separate(Created.Year, into = c("Created.Year", "time", "Period"),
+           sep=" ", convert = TRUE) %>%
+  unite(Created.Time, time, Period, sep = " ") %>%
+  mutate(Created.Hour = as.POSIXlt(Created.Time, format="%I:%M:%S %p")$hour,
+          Resolve.Time.Hours =  as.numeric((as.POSIXct(Closed.Date, format="%m/%d/%Y %I:%M:%S %p") - 
+                                as.POSIXct(Created.Date, format="%m/%d/%Y %I:%M:%S %p"))) / 3600,
+            Resolve.Time.Hours = round(Resolve.Time.Hours, 2),
+         Created.Weekday = weekdays(as.Date(Created.Date, format="%m/%d/%Y %I:%M:%S %p"))) %>%
+  filter(Resolve.Time.Hours >= 0) %>%
+  select(-starts_with("Closed"), Closed.Date)
+  
+nyc311_time %>% 
+  select(Created.Date, Closed.Date, Resolve.Time.Hours, Created.Year, Created.Month, Created.Day, 
+         Created.Time, Created.Hour, Created.Weekday) %>%
+  head(6) %>%
+  pander(caption = "Separation of Date and Time and \n Calculation of Response Time",
+         split.cell=4)
+```
+
+
+### Remove Columns
+
+**Redundant columns**
+
+Let's view some columns which have redundant information. 
+
+```{r redundant_col, echo=FALSE, warning=FALSE, message=FALSE}
+nyc311_time %>% 
+  select(Street.Name, Incident.Address, Latitude, Longitude, Location,
+         Facility.Type, Location.Type, Borough, Park.Borough, Community.Board) %>%
+  head() %>%
+  pander(caption = "Redundant columns",
+         split.cell=5)
+```
+
+**Columns with very few data**
+
+Let's view the counts of the non empty values in each column. We only display 
+the columns which have counts less than 65% of the total observations.
+
+```{r count, echo=FALSE, warning=FALSE, message=FALSE}
+non_na_count <- data.frame(colSums(!is.na(nyc311_time)))
+colnames(non_na_count) <- "Non.NA.Count"
+non_na_count %>%
+  arrange(Non.NA.Count) %>%
+  filter(Non.NA.Count < 0.65 * nrow(nyc311_time)) %>%
+  pander(caption = "Columns with very less non empty values")
+```
+
+**Removing the columns**
+
+We remove the redundant columns seen previously, the columns with very few non empty data and
+also the columns which are not relevant or useful like `Created.Date`, `Due.Date` since
+important date and time information have already been extracted. Also, address fields like
+`Cross.Street.1`, `Address.Type`, and other irrelevant columns are removed.
+``
+
+```{r remove_col, echo=FALSE, warning=FALSE, message=FALSE}
+nyc311_clean <- 
+  nyc311_time %>% 
+  select(-c(Street.Name, Location, Facility.Type, Resolution.Action.Updated.Date,
+            `X.Coordinate.(State.Plane)`, `Y.Coordinate.(State.Plane)`,
+            Park.Borough, Community.Board, Ferry.Direction, Garage.Lot.Name, 
+            Landmark, Ferry.Terminal.Name, Vehicle.Type, Taxi.Company.Borough, 
+            Bridge.Highway.Name, Road.Ramp,
+            Bridge.Highway.Segment, Bridge.Highway.Direction, Taxi.Pick.Up.Location, 
+            Intersection.Street.1, Intersection.Street.2, Cross.Street.1, 
+            Cross.Street.2, Address.Type, Incident.Address, Created.Date,
+            Due.Date, Closed.Date, Incident.Zip, Park.Facility.Name, School.Name), -c(33:43))
+```
+
+
+### Viewing columns of the tidied nyc311 dataset
+
+```{r view_tidy, echo=FALSE, warning=FALSE, message=FALSE}
+pander(colnames(nyc311_clean), caption="Column Names of tidied nyc311 dataset")
+```
+
+```{r save, include=FALSE}
+write_csv(nyc311_clean, 'tidied_nyc311.csv')
+```
+
+Hence, we tidied the `nyc311` data by removing duplicate values, gathering and
+spreading required columns like Created.Date using `tidyr` package. We also 
+removed the redundant columns and columns with very little or irrelevant information.
+
+## Tidying Population data
+
+### Gathering the years
+
+```{r nycpopn_view, echo=FALSE, warning=FALSE, message=FALSE}
+pander(tail(nyc_popn, 6), 
+       caption = "Projected Population 2010-2040 by Borough and Age",
+       split.cell=10)
+```
+
+We can see that the years need to be gathered together in the `nyc_popn` data.
+
+```{r gathering, echo=FALSE, warning=FALSE, message=FALSE}
+nyc_popn_tidy_ <- 
+  nyc_popn %>% 
+  gather('2010':'2040', key="Year", value="Population", convert = TRUE)
+
+pander(tail(nyc_popn_tidy_, 6), 
+       caption = "Tidied Population data")
+```
+
+### Filtering by total population in each Borough
+
+Since the `nyc311` has no information of Age group, so only the observations
+with total population of each Borough is filtered.
+
+```{r total_popn, echo=FALSE, warning=FALSE, message=FALSE}
+nyc_popn_tidy <- nyc_popn_tidy_ %>%
+  filter(Age == "Total") %>%
+  select(-Age)
+
+pander(head(nyc_popn_tidy),
+       caption="Total population data (Age groups removed)")
+```
+
+# Joining the datasets
+
+## Converting graduation dataset to suitable form
+
+```{r nycgrad_view, echo=FALSE}
+names(nyc_grad)<-names(nyc_grad) %>%
+stringr::str_replace_all("\\s", ".")
+nyc_grad %>%
+  select(1:7) %>%
+  head(6) %>%
+  pander(caption="2005-2011 Graduation Outcomes - Borough",
+         split.table = "Inf",
+         split.cell=10)
+```
+
+The `Cohort.Category` is parsed as number and added with the `Cohort.Year` to
+calculate the `Graduation.Year`. Then, only the relevant columns are selected.
+Finally, duplicates are removed by grouping the data according to the columns,
+`Graduation.Year` and `Borough`.
+
+```{r nyc_grad_tidy, echo=FALSE}
+nyc_grad_tidy <- nyc_grad %>%
+  mutate(Duration = parse_number(Cohort.Category),
+         Graduation.Year = Cohort.Year + Duration) %>%
+  select(Graduation.Year, Borough, c(5:7)) %>%
+  group_by(Graduation.Year, Borough) %>%
+  summarize_all(max)
+pander(head(nyc_grad_tidy, 6), split.table = "Inf")
+```
+
+## Check Borough's values
+
+Since the tables will be connected by `Borough`, it is checked if there are any
+unspecified values in the column or mismatch in all the tables.
+
+```{r Borough_check, echo = FALSE, warning=FALSE, message=FALSE}
+nyc311_tidy <- nyc311_clean
+nyc311_tidy %>%
+  group_by(Borough) %>%
+  summarise(counts = n()) %>%
+  pander(caption = "Borough distribution on nyc311 data")
+
+nyc_grad_tidy %>%
+  group_by(Borough) %>%
+  summarise(counts = n()) %>%
+  pander(caption = "Borough distribution on graduation data")
+
+nyc_popn_tidy %>%
+  group_by(Borough) %>%
+  summarise(counts = n()) %>%
+  pander(caption = "Borough distribution on population data")
+```
+
+Since there are no Unspecified or null values, we are good to go. However, the 
+values of Borough in the 2 tables table must be converted to uppercase.
+
+## Converting to uppercase
+
+```{r upper_case, echo=FALSE, message=FALSE, warning=FALSE}
+nyc_grad_tidy$Borough <- nyc_grad_tidy$Borough %>% 
+                            str_to_upper()
+nyc_popn_tidy$Borough <- nyc_popn_tidy$Borough %>% 
+                            str_to_upper()
+```
+
+## Viewing the year distribution of the tables
+
+Since these tables contain different year values, we need to sample it based on 
+a particular year. So, the year distributions of all three datasets are checked.
+
+```{r year_dist, echo=FALSE, message=FALSE, warning=FALSE}
+nyc311_tidy %>%
+  ggplot() +
+  geom_bar(aes(x=Created.Year)) +
+  ggtitle("Created Year Distribution of Nyc311 dataset")
+
+nyc_popn_tidy %>%
+  ggplot() +
+  geom_bar(aes(x=Year)) +
+  ggtitle("Year Distribution of Population dataset")
+
+nyc_grad_tidy %>%
+  ggplot() +
+  geom_bar(aes(x=Graduation.Year)) +
+  ggtitle("Year Distribution of Graduation dataset")
+```
+  
+The results show that `2010` would be a good year to perform the analysis since
+it is common in all the tables.
+
+## Joining the datasets
+
+Now that all the datasets are processed, they are ready to be connected by the columns `Year` and `Borough`
+using `inner_join`. Note that the column name for `Year` differs in the three tables.
+
+Also, 2010 is selected as the year for the analysis, hence all the tables are filtered accordingly.
+
+```{r combine , echo=FALSE, message=FALSE, warning=FALSE}
+nyc_combined <- nyc311_tidy %>%
+  inner_join(nyc_popn_tidy, by = c("Created.Year" = "Year", "Borough" = "Borough")) %>%
+  inner_join(nyc_grad_tidy, by = c("Created.Year" = "Graduation.Year", "Borough" = "Borough")) %>%
+  filter(Created.Year == 2010)
+```
+
+The extract of final joined dataset is shown below
+
+```{r view_extracts2, echo=FALSE, message=FALSE, warning=FALSE}
+pander(head(nyc_combined), caption = "Final combined dataset", split.cells = 5)
+```
+
+
+# Findings
+
+## Top 10 Largest Responding City Government Agencies
+
+We find out the top 10 city government agencies in terms of the largest
+Service Requests (SR) with the count and proportion count (in percentage).
+
+```{r largest_agencies, echo=FALSE, message=FALSE, warning=FALSE}
+bigAgency <- nyc311_tidy %>%
+  group_by(Agency) %>%
+  summarize(`Complaints count`=n()) %>%
+  mutate(rank = min_rank(desc(`Complaints count`)),
+         `Proportion in %` = `Complaints count` / sum(`Complaints count`) * 100) %>%
+  filter(rank <= 10) %>%
+  arrange(rank) %>%
+  select(-rank)
+
+pander(bigAgency, 
+       caption = "Top 10 Largest Responding City Government Agencies")
+
+```
+
+Then we visualize it using a bar chart.
+
+```{r plot_largest_agencies, echo=FALSE, message=FALSE, warning=FALSE}
+bigAgency$Agency<-factor(bigAgency$Agency,
+  levels=bigAgency$Agency[order(bigAgency$`Complaints count`)])
+
+p<-ggplot(bigAgency,aes(x=Agency,y=`Complaints count`, fill=Agency)) +
+   geom_bar(stat="identity", show.legend = FALSE) +
+   coord_flip() +
+  labs(
+    title = paste(
+      "Top 10 Largest Responding City Government Agencies"
+    )
+    )
+p
+```
+
+It is clear that HPD and DOT are biggest agencies in terms of receiving the 311 calls.
+
+## Most frequent Complaint Categories
+
+Let's view the Top 10 most frequent categories of the complaints registered 
+along with the count and count %.
+
+```{r top10_complaints, echo=FALSE, message=FALSE, warning=FALSE}
+top10_complaints <- 
+  nyc311_tidy %>%
+  group_by(Complaint.Type) %>%
+  summarize(count = n()) %>%
+  mutate(rank = min_rank(desc(count)),
+         'proportion in %' = count / sum(count) * 100) %>%
+  filter(rank <= 10) %>%
+  arrange(rank) %>%
+  select(-rank)
+
+pander(top10_complaints, caption = "Top 10 most frequent complaint categories")
+```
+
+We can see that HEATING and Street Condition are very common complaints.
+
+## Top complaint types
+
+```{r Top_complaints_plot , echo=FALSE, message=FALSE, warning=FALSE}
+top10_complaints$Complaint.Type <- factor(top10_complaints$Complaint.Type,
+          levels=top10_complaints$Complaint.Type[order(top10_complaints$count)])
+
+ggplot(top10_complaints,aes(Complaint.Type,count, fill=Complaint.Type)) +
+  geom_bar(stat="identity", show.legend = FALSE) +
+  coord_polar() +
+  xlab("Complaint Type") +
+  ggtitle("Common complaint types")
+```
+
+## Most freqeuent Complaint Categories across different Boroughs
+
+Now, let's view the counts of the top 10 frequent complain categories 
+across different Boroughs using a facet plot.
+
+```{r complaint_boroughs, echo=FALSE, message=FALSE, warning=FALSE}
+complaint_types <- nyc311_tidy %>%
+  group_by(Complaint.Type, Borough) %>%
+  summarize(Complaints = n()) %>%
+  filter(Complaint.Type %in% top10_complaints$Complaint.Type,
+         Borough != 'Unspecified')
+
+ggplot(complaint_types) + 
+  geom_bar(stat="identity", 
+           aes(x=Complaint.Type, y=Complaints, fill=Complaint.Type),
+           show.legend = FALSE) + 
+  facet_wrap(~ Borough) +
+  coord_flip() +
+  xlab("Complaint Type") +
+  ggtitle("Top 10 Complaints Category across different Boroughs")
+```
+
+## Complaints across boroughs
+
+Let's find out the distribution of the calls across the Boroughs.
+
+```{r dist_borough, echo=FALSE, message=FALSE, warning=FALSE}
+nyc311_tidy %>%
+  ggplot(aes(y=Borough, fill=Borough)) +
+   geom_bar(show.legend = FALSE) +
+   coord_flip() +
+  labs(
+    title = paste(
+      "Call distribution across Boroughs"
+    ),
+    x = paste("311 service calls")
+    ) 
+
+```
+
+Hence, Brooklyn and Queens are more busy than other Boroughs.
+
+## Resolve time across Boroughs
+
+Let's analyze which Boroughs resolve the complaints quickly. We first filter the resolve time 
+less than 10 days.
+
+```{r res_time, echo=FALSE, message=FALSE, warning=FALSE}
+nyc311_tidy %>%
+  mutate(Resolve.Time.Day = Resolve.Time.Hours / 24) %>%
+  filter(Resolve.Time.Day < 10) %>%
+  ggplot(aes(x=Borough, y=Resolve.Time.Hours)) +
+   geom_boxplot() +
+  labs(
+    title = paste(
+      "Resolve time by Boroughs (<10 days)"
+    ),
+    x = paste("Borough"),
+    y= paste("Resolve time in hours")
+    ) +
+  scale_y_log10()
+
+```
+Hence, we can see that Queens has the quickest resolve time compared to others.
+
+## Resolve time by Complaint Types and Boroughs
+
+Let's see the variation of resolve time on the basis of 
+Complaint Category across Boroughs. First, we filter resolve time less than 10 days only.
+
+```{r res_time_com_bor, echo=FALSE, message=FALSE, warning=FALSE}
+nyc311_tidy %>%
+  filter(Complaint.Type %in% top10_complaints$Complaint.Type &
+           Resolve.Time.Hours / 24 < 10) %>%
+  ggplot(aes(x=Complaint.Type, y = Borough)) +
+  # scale_x_continuous(breaks = seq(0, 23, by = 1)) +
+   geom_tile(aes(fill = Resolve.Time.Hours))  +
+  coord_flip() +
+  labs(
+    title = paste(
+      "Resolve time by Complaints Type across Boroughs"
+    ),
+    y = paste("Boroughs"),
+    x = paste("Complaints Type")) +
+    theme(legend.position = "bottom") +
+    guides(
+color = guide_legend(
+  nrow = 1,
+  override.aes = list(size = 4)
+    ) 
+)
+```
+
+Hence, we can see that Street condition complaint takes longer to resolve by Brooklyn and Staten Island. 
+On the other hand, complaints like Water system, Traffic Signal Condition and BLocked Driveway
+are quickly resolved by all Boroughs.
+
+## Covariation between Complaints Type and Boroughs
+
+```{r geom_tile1, echo=FALSE, message=FALSE, warning=FALSE}
+nyc311_tidy %>%
+  filter(Complaint.Type %in% top10_complaints$Complaint.Type) %>%
+  count(Complaint.Type, Borough) %>%
+  mutate(Complaints = n) %>%
+  ggplot(mapping = aes(x = Borough, y = Complaint.Type)) +
+  geom_tile(mapping = aes(fill = Complaints)) +
+  labs(
+    title = paste(
+      "Covariation between Complaints Type and Boroughs"
+    ),
+    x = paste("Boroughs"),
+    y = paste("Complaints Type")) +
+    theme(legend.position = "bottom") +
+    guides(
+color = guide_legend(
+  nrow = 1,
+  override.aes = list(size = 4)
+    ) 
+)
+
+```
+
+We can see that Brooklyn has relatively higher number of complaints, especially heating complaints.
+Staten island have very few complaints.
+
+## Complaints trend over Boroughs
+
+Now, let's see the frequency of complaints over the years across different Boroughs.
+
+```{r call_trends, echo=FALSE, message=FALSE, warning=FALSE}
+nyc311_tidy %>%
+  ggplot() +
+   geom_freqpoly(aes(x=Created.Year, color=Borough)) +
+  coord_cartesian(xlim = c(2009, 2016)) +
+  scale_x_continuous(breaks = seq(2010, 2015, by = 1)) +
+  labs(
+    title = paste(
+      "Complaints trend acorss Boroughs"
+    ),
+    x = paste("Year"),
+    y = paste("311 Service Calls")) +
+    theme(legend.position = "bottom") +
+    guides(
+  color = guide_legend(
+    nrow = 1,
+    override.aes = list(size = 4)
+    ) 
+)
+```
+
+2012 saw a spike in complaints in Brooklyn whereas complaints in Queens was at peak in 
+2013. Highly effective corrective measures seem to have been employed in 
+almost all Boroughs since the numbers dropped to less than a quarter in 2015.
+
+## Heating Complaints trend over Boroughs
+
+Now, let's see the evolution of heating complaints over the years across different Boroughs.
+
+```{r call_trends_heat, echo=FALSE, message=FALSE, warning=FALSE}
+nyc311_tidy %>%
+  filter(Complaint.Type == "HEATING") %>%
+  ggplot() +
+   geom_freqpoly(aes(x=Created.Year, color=Borough)) +
+  # coord_cartesian(xlim = c(2009, 2016)) +
+  # scale_x_continuous(breaks = seq(2010, 2015, by = 1)) +
+  labs(
+    title = paste(
+      "Heating complaints trend across Boroughs"
+    ),
+    x = paste("Year"),
+    y = paste("311 Heating Complaints")) +
+    theme(legend.position = "bottom") +
+    guides(
+color = guide_legend(
+  nrow = 1,
+  override.aes = list(size = 4)
+    ) 
+)
+```
+
+We can see that Bronx has peak heating complaints in 2013 and 2014 while Staten 
+Island has almost flat curve u=indicating no significant rise in heating complaints.
+
+## Distirbution of Heating complaints in maps
+
+This is done on a sample (10000 observations) of nyc311 data.
+
+```{r readmini, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggmap)
+sample<-fread("mini311.csv")
+complaintlocs <- sample %>%
+  select(Complaint.Type,
+         Borough,
+    Longitude,
+    Latitude
+  )
+noisecompl <- complaintlocs %>%
+  filter(Complaint.Type == "HEATING")
+key <- "AIzaSyC5GbsILImvioh5il6W3HQaIgKR3ra5v1o"
+register_google(key=key)
+nyc_map <- get_map(location=c(lon=-73.9,lat=40.75),
+		   maptype="terrain",zoom=10)
+map <- ggmap(nyc_map) +
+  geom_point(data=noisecompl,aes(x=Longitude,y=Latitude),
+	     size=0.4,alpha=0.2,color="red") +
+  ggtitle("HEATING complaints distribution") +
+  theme(plot.title=element_text(hjust=0.5)) +
+  xlab("Longitude") + ylab("Latitude")
+map
+```
+
+We can see the heating complaints mostly in Bronx and Brooklyn in the map.
+
+## Busy hours and days
+
+Let's see which days of the week and which time are more busy.
+
+```{r busy_hrs, echo=FALSE, message=FALSE, warning=FALSE}
+nyc_week_count <-nyc311_tidy %>%
+  count(Created.Hour, Created.Weekday) 
+nyc_week_count$Created.Weekday <- 
+  factor(nyc_week_count$Created.Weekday, levels= c("Sunday", "Monday", 
+    "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+nyc_week_count %>%
+  mutate(complaints = n) %>%
+  ggplot(aes(x=Created.Hour, y = Created.Weekday)) +
+  scale_x_continuous(breaks = seq(0, 23, by = 1)) +
+   geom_tile(aes(fill = complaints))  +
+  labs(
+    title = paste(
+      "Complaints by days and hours"
+    ),
+    x = paste("Hours"),
+    y = paste("Days")) +
+    theme(legend.position = "bottom") +
+    guides(
+color = guide_legend(
+  nrow = 1,
+  override.aes = list(size = 4)
+    )
+)
+```
+
+
+## Busy months
+
+```{r busy_months, echo=FALSE, message=FALSE, warning=FALSE}
+nyc311_tidy %>%
+  ggplot() +
+   geom_bar(aes(y=Created.Month, fill=Created.Month)) +
+  coord_flip() +
+  scale_y_continuous(breaks = seq(1, 12, by = 1)) +
+  labs(
+    title = paste(
+      "Busy months"
+    ),
+    x = paste("311 service calls"),
+    y = paste ("Month")
+    ) 
+```
+
+We can see that January and February are busier than other months. It may be due to 
+the new year.
+
+## Population trends in Boroughs
+
+```{r popn_trends, echo=FALSE, message=FALSE, warning=FALSE}
+nyc_popn_tidy %>%
+  filter(Borough != "NYC TOTAL") %>%
+  ggplot() +
+   geom_line(aes(x=Year, y = Population, color = Borough)) +
+  # coord_cartesian(xlim = c(2009, 2016)) +
+  # scale_x_continuous(breaks = seq(2010, 2015, by = 1)) +
+  labs(
+    title = paste(
+      "Population trend across Boroughs"
+    ),
+    x = paste("Year"),
+    y = paste("Population")) +
+    theme(legend.position = "bottom") +
+    guides(
+  color = guide_legend(
+    nrow = 1,
+    override.aes = list(size = 5)
+    ) +
+    scale_y_log10()
+)
+```
+We can see that Brooklyn has the highest population over the years and is rapidly inreasing.
+However, Staten island's population increase is almost flat.
+
+
+## Gradutaion percentage across Boroughs
+
+```{r grad_trends, echo=FALSE, message=FALSE, warning=FALSE}
+nyc_grad_tidy %>%
+  ggplot(aes(x=Graduation.Year, y = Total.Grads.Pct.of.cohort, color = Borough)) +
+   geom_point() +
+  # coord_cartesian(xlim = c(2009, 2016)) +
+  scale_x_continuous(breaks = seq(2005, 2011, by = 1)) +
+  # scale_y_continuous(breaks = seq(63, 93, by = 5)) +
+  labs(
+    title = paste(
+      "Graduation percentage across Boroughs"
+    ),
+    x = paste("Year"),
+    y = paste("Graduation percentage")) +
+    theme(legend.position = "bottom") +
+    guides(
+  color = guide_legend(
+    nrow = 1,
+    override.aes = list(size = 2)
+    )
+)
+```
+We can see an increasing trend in percentage of graduate students every year in each Borough.
+
+## Population and Complaints distribution across Boroughs
+
+Let's find out the distribution of the calls and population across the Boroughs.
+
+```{r dist_borough_pop, echo=FALSE, message=FALSE, warning=FALSE}
+nyc_combined %>%
+  ggplot(aes(y=Borough, fill=Population)) +
+   geom_bar() +
+   coord_flip() +
+  labs(
+    title = paste(
+      "Call and Population distribution across Boroughs"
+    ),
+    x = paste("311 service calls")
+    ) 
+```
+
+We can see that although Queens has a lower population than Brooklyn, it receives more
+311 calls.
+
+# Conclusions
+
+Hence, several transformations and explorations were done on the `nyc311` data and the
+two additional datasets. The two datasets were also joined with the `nyc311` data 
+by converting all the datasets into appropriate form (tidying, grouping and 
+removal of redundant columns),
+performing a inner join by columns `Year` and `Borough` and finally filtering it 
+by the `Year==2010` constraint.
+
+We applied exploratory data analysis  using various
+data transformation and visualization techniques. We were able to answer several
+questions about the data. Several analysis were done which gave the following findings.
+
+1. It is clear that HPD and DOT are biggest agencies in terms of receiving the 311 calls.
+2. We can see that HEATING and Street Condition are very common complaints.
+3. Brooklyn and Queens are more busy than other Boroughs.
+4. Queens has the quickest resolve time compared to others.
+5. Street condition complaint takes longer to resolve by Brooklyn and Staten Island.  On the other hand, complaints like Water system, Traffic Signal Condition and BLocked Driveway are quickly resolved by all Boroughs.
+6. We can see that Brooklyn has relatively higher number of complaints, especially heating complaints. Staten island have very few complaints.
+7. 2012 saw a spike in complaints in Brooklyn whereas complaints in Queens was at peak in 
+8. Highly effective corrective measures seem to have been employed in 
+almost all Boroughs since the numbers dropped to less than a quarter in 2015
+9. We can see that Bronx has peak heating complaints in 2013 and 2014 while Staten 
+Island has almost flat curve indicating no significant rise in heating complaints.
+10. We can see the heating complaints mostly in Bronx and Brooklyn in the map.
+11. We can see that January and February are busier than other months. It may be due to 
+the new year.
+12. We can see that Brooklyn has the highest population over the years and is rapidly inreasing.
+13. We can see an increasing trend in percentage of graduate students every year in each Borough.
+14. We can see that although Queens has a lower population than Brooklyn, it receives more
+311 calls. However, Staten island's population increase is almost flat.
+
+\newpage
+
+# Appendices
+
+## Data Dictionary
+
+```{r dict, echo = FALSE, message=FALSE, warning=FALSE}
+nyc311_info <- tribble( 
+  ~Indicator,  ~ Description,  ~ DataType,
+  "`Unique Key`"   , "Unique identifier of a Service Request (SR) in the open data set" 
+  , "Text",  
+  "`Created Date`" , "Date SR was created", "Floating Timestamp",
+  "`Closed Date`"  , "Date SR was closed by responding agency", "Floating Timestamp",
+  "`Agency`"       , "Acronym of responding City Government Agency" , "Text",
+  "`Agency Name`"  , "Full Agency name of responding City Government Agency", "Text",
+  "`Complaint Type`","This is the first level of a hierarchy identifying the topic of 
+                      the incident or condition.Complaint Type may have a corresponding
+                      Descriptor (below) or may stand alone." , "Text",
+  "`Descriptor`"   ,"This is associated to the Complaint Type, and provides further 
+                     detail on the incident or condition.Descriptor values are dependent
+                     on the Complaint Type, and are not always required in SR." , "Text",
+  "`Location Type`","Describes the type of location used in the address information", "Text",
+  "`Incident Zip`" ,"Incident location zip code, provided by geo validation.", "Text",
+  "`Incident Address`","House number of incident address provided by submitter.", "Text",
+  "`Street Name`"  ,"Street name of incident address provided by the submitter" , "Text",
+  "`Cross Street 1`", "First Cross street based on the geo validated incident location", "Text",
+  "`Cross Street 2`", "Second Cross Street based on the geo validated incident location" , "Text",
+  "`Intersection Street 1`", "First intersecting street based on geo validated 
+                              incident location" , "Text",
+  "`Intersection Street 2`", "Second intersecting street based on geo validated 
+                              incident location", "Text",
+  "`Address Type`","Type of incident location information available." , "Text",
+  "`City`"        , "City of the incident location provided by geovalidation.", "Text",
+  "`Landmark`"    , "If the incident location is identified as a Landmark the name of
+                     the landmark will display here", "Text",
+  "`Facility Type`", "If available, this field describes the type of city facility
+                      associated to the SR"  , "Text",
+  "`Status`"      , "Status of SR submitted", "Text",
+  "`Due Date`"    , "Date when responding agency is expected to update the SR. 
+                     This is based on the Complaint Type and internal Service Level 
+                     Agreements (SLAs).", "Floating Timestamp",
+  "`Resolution Description`", "Describes the last action taken on the SR by the 
+                               responding agency. May describe next or future steps.","Text",
+  "`Resolution Action Updated Date`", "Date when responding agency last updated the SR."
+  ,  "Floating Timestamp",
+  "`Community Board`", "Provided by geovalidation." ,  "Text",
+  "`Borough`", "Provided by the submitter and confirmed by geovalidation." ,  "Text",
+  "`X Coordinate (State Plane)`", "Geo validated, X coordinate of the incident location." 
+  ,  "Number",
+  "`Y Coordinate (State Plane)`", "Geo validated, Y coordinate of the incident location." 
+  ,  "Number",
+  "`Park Facility Name`", "If the incident location is a Parks Dept facility, the Name
+                          of the facility will appear here" ,  "Text",
+  "`Park Borough`", "The borough of incident if it is a Parks Dept facility"             
+  ,  "Text",
+  "`Vehicle Type`", "If the incident is a taxi, this field describes the type of TLC vehicle."
+  ,"Text",
+  "`Taxi Company Borough`", "If the incident is identified as a taxi, this field will
+                             display the borough of the taxi company." , "Text",
+  "`Taxi Pick Up Location`", "If the incident is identified as a taxi, this field 
+                              displays the taxi pick up location" , "Text",
+  "`Bridge Highway Name`", "If the incident is identified as a Bridge/Highway, the 
+                            name will be displayed here." , "Text",
+  "`Bridge Highway Direction`", "If the incident is identified as a Bridge/Highway, 
+                              the direction where the issue took place would be displayed here." 
+  , "Text",
+  "`Road Ramp`", "If the incident location was Bridge/Highway this column differentiates
+                  if the issue was on the Road or the Ramp.",  "Text",
+  "`Latitude`" , "Geo based Lat of the incident location" ,  "Number",
+  "`Longitude`", "	Geo based Long of the incident location" ,  "Number",
+  "`Location`" , "	Combination of the geo based lat & long of the incident location"            
+  ,  "Location",
+  
+
+)
+landscape(knitr::kable(nyc311_info, caption = "Data dictionary for original nyc311 dataset") %>%
+  kable_styling(font_size=7) %>%
+  column_spec(2,width="6in")
+)
+
+nyc_popn_info <- tribble( 
+  ~ Column.Name,  ~ Description,  ~ DataType,
+  "`Borough`"   , "Name of the New York City Borough" 
+  , "Text",  
+  "`Age`"       , "One of 18 Age cohorts like '0-4', '15-19', 'Total', and so on", "Text",
+  "`Year`"  , "Year in which the population is projected", "Number",
+  "`Population`"       , "The projected population value" , "Number"
+)
+pander(nyc_popn_info, caption="Data dictionary for Projected Population 2010-2040 dataset")
+
+nyc_grad_info <- tribble( 
+  ~ Column.Name,  ~ Description,  ~ DataType,
+  "`Borough`"   , "Name of the New York City Borough", "Text",  
+  "`Graduation.Year`", "The cohort's year of graduation", "Number",
+  "`Total.Cohort.Num`", "Number of students in the cohort", "Number",
+  "`Total.Grads.Num`", "Number of students who graduated in the cohort", "Number",
+  "`Total.Grads.Pct.of.cohort`", "Percentage of students who graduated in the cohort", "Number"
+)
+pander(nyc_grad_info, caption="Data dictionary for 2005-2011 Graduation Outcomes dataset")
+
+nyc_combined_info <- tribble( 
+  ~ Column.Name,  ~ Description,  ~ DataType,
+  "Created.Month" , "Month SR was created (1-12)", "Number",
+  "Created.Day" , "Day of month SR was created (1-31)", "Number",
+  "Created.Year" , "Year SR was created", "Number",
+  "Created.Time" , "Time SR was created", "Floating Timestamp",
+  "Created.Hour" , "Hour SR was created (0-24)", "Number",
+  "Created.Weekday" , "Day of week SR was created corresponding to (Sunday - Saturday)", "Text",
+  "Resolve.Time.Hours" , "Time taken to resolve the complaint in hours", "Number",
+  "Population", "Total population of the Borough", "Number",
+  "Total.Cohort.Num", "Number of students in the cohort", "Number",
+  "Total.Grads.Num", "Number of students who graduated in the cohort", "Number",
+  "Total.Grads.Pct.of.cohort", "Percentage of students who graduated in the cohort", "Number",
+  "Agency"       , "Acronym of responding City Government Agency" , "Text",
+  "Agency Name"  , "Full Agency name of responding City Government Agency", "Text",
+  "Complaint Type","This is the first level of a hierarchy identifying the topic of 
+                      the incident or condition.Complaint Type may have a corresponding
+                      Descriptor (below) or may stand alone." , "Text",
+  "Descriptor"   ,"This is associated to the Complaint Type, and provides further 
+                     detail on the incident or condition.Descriptor values are dependent
+                     on the Complaint Type, and are not always required in SR." , "Text",
+  "Location.Type","Describes the type of location used in the address information", "Text",
+  "Incident.Zip" ,"Incident location zip code, provided by geo validation.", "Text",
+  "City"        , "City of the incident location provided by geovalidation.", "Text",
+  "Status"      , "Status of SR submitted", "Text",
+  "Resolution.Description", "Describes the last action taken on the SR by the 
+                               responding agency. May describe next or future steps.","Text",
+  "Borough", "Provided by the submitter and confirmed by geovalidation." ,  "Text",
+  "Latitude" , "Geo based Lat of the incident location" ,  "Number",
+  "Longitude", "	Geo based Long of the incident location" ,  "Number"
+)
+
+landscape(knitr::kable(nyc_combined_info, caption = "Data dictionary for final nyc combined dataset") %>%
+  kable_styling(font_size=7) %>%
+  column_spec(2,width="6in")
+)
+```
+
+
+
+

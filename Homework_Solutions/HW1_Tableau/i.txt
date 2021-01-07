@@ -1,0 +1,94 @@
+1. The menu structure of Tableau changes drastically from one version to the
+next. Can you navigate this tutorial in the next (or previous) version of
+Tableau?
+
+Ans:
+It is generally difficult to keep up with the changes in the menu structure in
+a menu driven program like tableau. However, I was able to navigate this tutorial
+in the new version of Tableau as the menu structure was pretty similar to the
+one taught in the video.
+
+
+2. Different chart types are recommended for different types of data. How would
+you characterize these chart types? What is it about the data that leads to the
+recommendations?
+
+Ans:
+There are different chart types in tableau. They can be characterized as:
+
+## Bar Chart:
+Bar charts are one of the most common data visualizations. It is used to quickly
+compare data across categories, highlight differences, show trends and outliers,
+and reveal historical highs and lows at a glance.
+
+## Line Chart
+The line chart, or line graph, connects several distinct data points, presenting
+them as one continuous evolution. We use line charts to view trends in data,
+usually over time.
+
+## Pie Chart
+Pie charts are powerful for adding detail to other visualizations in a circular
+shape, which can be analyzed at once.
+
+## Maps
+Maps are used for visualizing any kind of location information, whether it’s
+postal codes, state abbreviations, country names, or your own custom geocoding.
+
+## Scatter Plot
+Scatter plots are an effective way to investigate the relationship between
+different variables, showing if one variable is a good predictor of another,
+or if they tend to change independently. A scatter plot presents lots of distinct
+data points on a single chart.
+
+## Gantt Chart
+Gantt charts display a project schedule or show changes in activity over time.
+A Gantt chart shows steps that need to be completed before others can begin,
+along with resource allocation.
+
+The nature of data i.e. whether it is categorical or numerical, or if it is
+geographical, etc leads to the recommendations. For example: Bar charts are
+especially effective when data can be split into multiple categories. Similarly,
+if geographic information is associated with the data, maps are a simple and
+compelling way to show how location correlates with trends in the data.
+
+
+3. Is Tableau biased in any way? Is it easier to make some kinds
+of arguments with Tableau than others?
+
+Ans: Yes, tableau is biased since it relies on measurements. So, it will be
+easier to make arguments about easily measurable quantities. However, some
+things are harder to measure. For example, love, time are difficult to measure.
+
+
+4. Tableau accepts live data and allows you to connect your visualization to live,
+changing data. Suppose the point you are trying to make is no longer supported by
+data in future. Will you be blamed for that change?
+
+Ans: Yes, I think that I will be blamed for that change since conditions may
+change in the future and I may be still associated with that tool, which is
+a big potential source of trouble.
+
+
+5. Tableau makes a lot of default choices that you changed. Do you think it could
+(or should) learn your preferences over time? What would it take to do that?
+
+Ans:
+Yes, I think it should and it can learn my preferences over time. It would need
+to store my data on how I use the software and adapt the default choices
+utilizing that data. There might be privacy issues, however, it can develop some
+policies on what type of data can it store. It can also use information on how
+other people use Tableau to enhance the choices.
+
+
+6. What is a data visualization? What would have to be subtracted from these
+pictures so that they could not be called data visualizations?
+
+Ans: Data visualization is the graphical representation of information and data.
+By using visual elements like charts, graphs, and maps, data visualization tools
+provide an accessible way to see and understand trends, outliers, and patterns
+in data.
+
+All the visual features like lines, bars, maps, legends, trend lines, markers,
+etc must be subtracted from these pictures so that they could not be called
+data visualizations.
+

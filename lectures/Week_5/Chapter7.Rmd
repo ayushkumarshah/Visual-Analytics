@@ -1,0 +1,109 @@
+---
+title: "Chapter7"
+author: "Ayush Kumar Shah"
+date: "9/23/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Chapter 7 Tibbles
+
+Tibbles are one of the unifying features of the tidyverse
+
+## Coercing a dataframe to a tibble:
+```{r}
+library(tidyverse)
+class(iris)
+as_tibble(iris)
+```
+
+## Creating tibble
+```{r}
+tibble(
+x = 1:5,
+y = 1,
+z = x ^ 2 + y
+)
+```
+
+## Characters not supported by R also can be column names in tibble
+
+```{r}
+tb <- tibble(
+`:)` = "smile",
+` ` = "space",
+`2000` = "number"
+)
+tb
+```
+
+## Creating tiblle Row-wise
+
+```{r}
+tribble(
+~x, ~y, ~z,
+#--|--|----
+"a", 2, 3.6,
+"b", 1, 8.5
+)
+```
+
+## Tibble vs dataframe
+
+### Printing
+- only the first 10 rows, and all the columns that fit on screen
+- each column reports its type
+
+To print more,
+```{r}
+nycflights13::flights %>%
+print(n = 10, width = Inf)
+```
+- `options(tibble.print_max = n, tibble.print_min = m)`:
+  if more than m rows, print only n rows. Use
+- `options(dplyr.print_min = Inf)` to always show all rows.
+- Use `options(tibble.width = Inf)` to always print all columns,
+  regardless of the width of the screen.
+
+```{r}
+?tibble
+```
+
+
+### Subsetting
+```{r}
+df <- tibble(
+x = runif(5),
+y = rnorm(5)
+)
+options(digits=2)
+```
+
+```{r}
+df$x
+```
+
+```{r}
+df[["x"]]
+```
+
+```{r}
+df[[1]]
+```
+
+Using pipe
+
+```{r}
+df %>% .$x
+df %>% .[["x"]]
+```
+
+To use functions not supported for tibbles: convert to dataframe
+```{r}
+class(as.data.frame(tb))
+```
+
+

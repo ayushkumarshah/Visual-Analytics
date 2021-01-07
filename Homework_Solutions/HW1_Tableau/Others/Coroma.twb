@@ -1,0 +1,458 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!-- build 20203.20.0801.1333                               -->
+<workbook original-version='18.1' source-build='2020.3.0 (20203.20.0801.1333)' source-platform='mac' version='18.1' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <document-format-change-manifest>
+    <MapboxVectorStylesAndLayers />
+    <_.fcp.MarkAnimation.true...MarkAnimation />
+    <_.fcp.ObjectModelEncapsulateLegacy.true...ObjectModelEncapsulateLegacy />
+    <_.fcp.ObjectModelTableType.true...ObjectModelTableType />
+    <_.fcp.SchemaViewerObjectModel.true...SchemaViewerObjectModel />
+    <SheetIdentifierTracking />
+    <WindowsPersistSimpleIdentifiers />
+  </document-format-change-manifest>
+  <preferences>
+    <preference name='ui.encoding.shelf.height' value='24' />
+    <preference name='ui.shelf.height' value='26' />
+  </preferences>
+  <datasources>
+    <datasource caption='COVID-19-Activity' inline='true' name='federated.17sswvx0wodli61d75mf017bwqjs' version='18.1'>
+      <connection class='federated'>
+        <named-connections>
+          <named-connection caption='COVID-19-Activity' name='textscan.06lz5aj1s719h116bokng0ovadi9'>
+            <connection class='textscan' directory='/Users/ayushkumarshah/Desktop/RIT_PHD/course_materials/ISTE782_VisualAnalytics/Assignments/HomeWork1_Tableau' filename='COVID-19-Activity.csv' password='' server='' />
+          </named-connection>
+        </named-connections>
+        <_.fcp.ObjectModelEncapsulateLegacy.false...relation connection='textscan.06lz5aj1s719h116bokng0ovadi9' name='COVID-19-Activity.csv' table='[COVID-19-Activity#csv]' type='table'>
+          <columns character-set='UTF-8' header='yes' locale='en_US' separator=','>
+            <column datatype='integer' name='PEOPLE_POSITIVE_CASES_COUNT' ordinal='0' />
+            <column datatype='string' name='COUNTY_NAME' ordinal='1' />
+            <column datatype='string' name='PROVINCE_STATE_NAME' ordinal='2' />
+            <column datatype='date' name='REPORT_DATE' ordinal='3' />
+            <column datatype='string' name='CONTINENT_NAME' ordinal='4' />
+            <column datatype='string' name='DATA_SOURCE_NAME' ordinal='5' />
+            <column datatype='integer' name='PEOPLE_DEATH_NEW_COUNT' ordinal='6' />
+            <column datatype='string' name='COUNTY_FIPS_NUMBER' ordinal='7' />
+            <column datatype='string' name='COUNTRY_ALPHA_3_CODE' ordinal='8' />
+            <column datatype='string' name='COUNTRY_SHORT_NAME' ordinal='9' />
+            <column datatype='string' name='COUNTRY_ALPHA_2_CODE' ordinal='10' />
+            <column datatype='integer' name='PEOPLE_POSITIVE_NEW_CASES_COUNT' ordinal='11' />
+            <column datatype='integer' name='PEOPLE_DEATH_COUNT' ordinal='12' />
+          </columns>
+        </_.fcp.ObjectModelEncapsulateLegacy.false...relation>
+        <_.fcp.ObjectModelEncapsulateLegacy.true...relation connection='textscan.06lz5aj1s719h116bokng0ovadi9' name='COVID-19-Activity.csv' table='[COVID-19-Activity#csv]' type='table'>
+          <columns character-set='UTF-8' header='yes' locale='en_US' separator=','>
+            <column datatype='integer' name='PEOPLE_POSITIVE_CASES_COUNT' ordinal='0' />
+            <column datatype='string' name='COUNTY_NAME' ordinal='1' />
+            <column datatype='string' name='PROVINCE_STATE_NAME' ordinal='2' />
+            <column datatype='date' name='REPORT_DATE' ordinal='3' />
+            <column datatype='string' name='CONTINENT_NAME' ordinal='4' />
+            <column datatype='string' name='DATA_SOURCE_NAME' ordinal='5' />
+            <column datatype='integer' name='PEOPLE_DEATH_NEW_COUNT' ordinal='6' />
+            <column datatype='string' name='COUNTY_FIPS_NUMBER' ordinal='7' />
+            <column datatype='string' name='COUNTRY_ALPHA_3_CODE' ordinal='8' />
+            <column datatype='string' name='COUNTRY_SHORT_NAME' ordinal='9' />
+            <column datatype='string' name='COUNTRY_ALPHA_2_CODE' ordinal='10' />
+            <column datatype='integer' name='PEOPLE_POSITIVE_NEW_CASES_COUNT' ordinal='11' />
+            <column datatype='integer' name='PEOPLE_DEATH_COUNT' ordinal='12' />
+          </columns>
+        </_.fcp.ObjectModelEncapsulateLegacy.true...relation>
+        <metadata-records>
+          <metadata-record class='capability'>
+            <remote-name />
+            <remote-type>0</remote-type>
+            <parent-name>[COVID-19-Activity.csv]</parent-name>
+            <remote-alias />
+            <aggregation>Count</aggregation>
+            <contains-null>true</contains-null>
+            <attributes>
+              <attribute datatype='string' name='character-set'>&quot;UTF-8&quot;</attribute>
+              <attribute datatype='string' name='collation'>&quot;en_US&quot;</attribute>
+              <attribute datatype='string' name='field-delimiter'>&quot;,&quot;</attribute>
+              <attribute datatype='string' name='header-row'>&quot;true&quot;</attribute>
+              <attribute datatype='string' name='locale'>&quot;en_US&quot;</attribute>
+              <attribute datatype='string' name='single-char'>&quot;&quot;</attribute>
+            </attributes>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>PEOPLE_POSITIVE_CASES_COUNT</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[PEOPLE_POSITIVE_CASES_COUNT]</local-name>
+            <parent-name>[COVID-19-Activity.csv]</parent-name>
+            <remote-alias>PEOPLE_POSITIVE_CASES_COUNT</remote-alias>
+            <ordinal>0</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>COUNTY_NAME</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[COUNTY_NAME]</local-name>
+            <parent-name>[COVID-19-Activity.csv]</parent-name>
+            <remote-alias>COUNTY_NAME</remote-alias>
+            <ordinal>1</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <approx-count>1</approx-count>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>PROVINCE_STATE_NAME</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[PROVINCE_STATE_NAME]</local-name>
+            <parent-name>[COVID-19-Activity.csv]</parent-name>
+            <remote-alias>PROVINCE_STATE_NAME</remote-alias>
+            <ordinal>2</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>REPORT_DATE</remote-name>
+            <remote-type>133</remote-type>
+            <local-name>[REPORT_DATE]</local-name>
+            <parent-name>[COVID-19-Activity.csv]</parent-name>
+            <remote-alias>REPORT_DATE</remote-alias>
+            <ordinal>3</ordinal>
+            <local-type>date</local-type>
+            <aggregation>Year</aggregation>
+            <contains-null>true</contains-null>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>CONTINENT_NAME</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[CONTINENT_NAME]</local-name>
+            <parent-name>[COVID-19-Activity.csv]</parent-name>
+            <remote-alias>CONTINENT_NAME</remote-alias>
+            <ordinal>4</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>DATA_SOURCE_NAME</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[DATA_SOURCE_NAME]</local-name>
+            <parent-name>[COVID-19-Activity.csv]</parent-name>
+            <remote-alias>DATA_SOURCE_NAME</remote-alias>
+            <ordinal>5</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>PEOPLE_DEATH_NEW_COUNT</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[PEOPLE_DEATH_NEW_COUNT]</local-name>
+            <parent-name>[COVID-19-Activity.csv]</parent-name>
+            <remote-alias>PEOPLE_DEATH_NEW_COUNT</remote-alias>
+            <ordinal>6</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>COUNTY_FIPS_NUMBER</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[COUNTY_FIPS_NUMBER]</local-name>
+            <parent-name>[COVID-19-Activity.csv]</parent-name>
+            <remote-alias>COUNTY_FIPS_NUMBER</remote-alias>
+            <ordinal>7</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <approx-count>1</approx-count>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>COUNTRY_ALPHA_3_CODE</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[COUNTRY_ALPHA_3_CODE]</local-name>
+            <parent-name>[COVID-19-Activity.csv]</parent-name>
+            <remote-alias>COUNTRY_ALPHA_3_CODE</remote-alias>
+            <ordinal>8</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>COUNTRY_SHORT_NAME</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[COUNTRY_SHORT_NAME]</local-name>
+            <parent-name>[COVID-19-Activity.csv]</parent-name>
+            <remote-alias>COUNTRY_SHORT_NAME</remote-alias>
+            <ordinal>9</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>COUNTRY_ALPHA_2_CODE</remote-name>
+            <remote-type>129</remote-type>
+            <local-name>[COUNTRY_ALPHA_2_CODE]</local-name>
+            <parent-name>[COVID-19-Activity.csv]</parent-name>
+            <remote-alias>COUNTRY_ALPHA_2_CODE</remote-alias>
+            <ordinal>10</ordinal>
+            <local-type>string</local-type>
+            <aggregation>Count</aggregation>
+            <scale>1</scale>
+            <width>1073741823</width>
+            <contains-null>true</contains-null>
+            <collation flag='0' name='LEN_RUS' />
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>PEOPLE_POSITIVE_NEW_CASES_COUNT</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[PEOPLE_POSITIVE_NEW_CASES_COUNT]</local-name>
+            <parent-name>[COVID-19-Activity.csv]</parent-name>
+            <remote-alias>PEOPLE_POSITIVE_NEW_CASES_COUNT</remote-alias>
+            <ordinal>11</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+          </metadata-record>
+          <metadata-record class='column'>
+            <remote-name>PEOPLE_DEATH_COUNT</remote-name>
+            <remote-type>20</remote-type>
+            <local-name>[PEOPLE_DEATH_COUNT]</local-name>
+            <parent-name>[COVID-19-Activity.csv]</parent-name>
+            <remote-alias>PEOPLE_DEATH_COUNT</remote-alias>
+            <ordinal>12</ordinal>
+            <local-type>integer</local-type>
+            <aggregation>Sum</aggregation>
+            <contains-null>true</contains-null>
+            <_.fcp.ObjectModelEncapsulateLegacy.true...object-id>[COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83]</_.fcp.ObjectModelEncapsulateLegacy.true...object-id>
+          </metadata-record>
+        </metadata-records>
+      </connection>
+      <aliases enabled='yes' />
+      <column caption='Continent Name' datatype='string' name='[CONTINENT_NAME]' role='dimension' type='nominal' />
+      <column caption='Country Alpha 2 Code' datatype='string' name='[COUNTRY_ALPHA_2_CODE]' role='dimension' semantic-role='[Country].[ISO3166_2]' type='nominal' />
+      <column caption='Country Alpha 3 Code' datatype='string' name='[COUNTRY_ALPHA_3_CODE]' role='dimension' semantic-role='[Country].[ISO3166_2]' type='nominal' />
+      <column caption='Country Short Name' datatype='string' name='[COUNTRY_SHORT_NAME]' role='dimension' semantic-role='[Country].[ISO3166_2]' type='nominal' />
+      <column caption='County Fips Number' datatype='string' name='[COUNTY_FIPS_NUMBER]' role='dimension' semantic-role='[County].[Name]' type='nominal' />
+      <column caption='County Name' datatype='string' name='[COUNTY_NAME]' role='dimension' semantic-role='[County].[Name]' type='nominal' />
+      <column caption='Date is Max' datatype='boolean' name='[Calculation_2088825828284801025]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='[Min Date (copy)_1618621879475580949] = [REPORT_DATE]&#10;&#10;//Used to report on the latest day of data. Use when using &#10;//Cumulative numbers to only show the most recent' />
+      </column>
+      <column caption='Date is Less than or Equal to US date' datatype='boolean' name='[Calculation_2159405703137574913]' role='dimension' type='nominal'>
+        <calculation class='tableau' formula='[REPORT_DATE] &lt;= [Max Date (copy)_2159405703137103872]&#10;&#10;// The US data is one day behing the Global data as they come &#10;//from two different sources.  &#10;//This filter enures we are reporting based on the Max US date' />
+      </column>
+      <column caption='Data Source Name' datatype='string' name='[DATA_SOURCE_NAME]' role='dimension' type='nominal' />
+      <column caption='Max Date for US' datatype='date' name='[Max Date (copy)_2159405703137103872]' role='dimension' type='ordinal'>
+        <calculation class='tableau' formula='{&#10;MAX(IF [COUNTRY_SHORT_NAME]= &quot;United States&quot; THEN[REPORT_DATE] END)&#10;}' />
+      </column>
+      <column caption='Max Date' datatype='date' name='[Min Date (copy)_1618621879475580949]' role='dimension' type='ordinal'>
+        <calculation class='tableau' formula='{MAX([REPORT_DATE])}' />
+      </column>
+      <column caption='People Death Count' datatype='integer' name='[PEOPLE_DEATH_COUNT]' role='measure' type='quantitative' />
+      <column caption='People Death New Count' datatype='integer' name='[PEOPLE_DEATH_NEW_COUNT]' role='measure' type='quantitative' />
+      <column caption='People Positive Cases Count' datatype='integer' name='[PEOPLE_POSITIVE_CASES_COUNT]' role='measure' type='quantitative' />
+      <column caption='People Positive New Cases Count' datatype='integer' name='[PEOPLE_POSITIVE_NEW_CASES_COUNT]' role='measure' type='quantitative' />
+      <column caption='Province State Name' datatype='string' name='[PROVINCE_STATE_NAME]' role='dimension' semantic-role='[State].[Name]' type='nominal' />
+      <column caption='Report Date' datatype='date' name='[REPORT_DATE]' role='dimension' type='ordinal' />
+      <_.fcp.ObjectModelTableType.true...column caption='COVID-19-Activity.csv' datatype='table' name='[__tableau_internal_object_id__].[COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83]' role='measure' type='quantitative' />
+      <layout _.fcp.SchemaViewerObjectModel.false...dim-percentage='0.5' _.fcp.SchemaViewerObjectModel.false...measure-percentage='0.4' dim-ordering='alphabetic' measure-ordering='alphabetic' show-structure='true' />
+      <semantic-values>
+        <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
+      </semantic-values>
+      <_.fcp.ObjectModelEncapsulateLegacy.true...object-graph>
+        <objects>
+          <object caption='COVID-19-Activity.csv' id='COVID-19-Activity.csv_2F22A9191BCF4549BEC35644C2512E83'>
+            <properties context=''>
+              <relation connection='textscan.06lz5aj1s719h116bokng0ovadi9' name='COVID-19-Activity.csv' table='[COVID-19-Activity#csv]' type='table'>
+                <columns character-set='UTF-8' header='yes' locale='en_US' separator=','>
+                  <column datatype='integer' name='PEOPLE_POSITIVE_CASES_COUNT' ordinal='0' />
+                  <column datatype='string' name='COUNTY_NAME' ordinal='1' />
+                  <column datatype='string' name='PROVINCE_STATE_NAME' ordinal='2' />
+                  <column datatype='date' name='REPORT_DATE' ordinal='3' />
+                  <column datatype='string' name='CONTINENT_NAME' ordinal='4' />
+                  <column datatype='string' name='DATA_SOURCE_NAME' ordinal='5' />
+                  <column datatype='integer' name='PEOPLE_DEATH_NEW_COUNT' ordinal='6' />
+                  <column datatype='string' name='COUNTY_FIPS_NUMBER' ordinal='7' />
+                  <column datatype='string' name='COUNTRY_ALPHA_3_CODE' ordinal='8' />
+                  <column datatype='string' name='COUNTRY_SHORT_NAME' ordinal='9' />
+                  <column datatype='string' name='COUNTRY_ALPHA_2_CODE' ordinal='10' />
+                  <column datatype='integer' name='PEOPLE_POSITIVE_NEW_CASES_COUNT' ordinal='11' />
+                  <column datatype='integer' name='PEOPLE_DEATH_COUNT' ordinal='12' />
+                </columns>
+              </relation>
+            </properties>
+          </object>
+        </objects>
+      </_.fcp.ObjectModelEncapsulateLegacy.true...object-graph>
+    </datasource>
+  </datasources>
+  <mapsources>
+    <mapsource name='Tableau' />
+  </mapsources>
+  <worksheets>
+    <worksheet name='Sheet 1'>
+      <table>
+        <view>
+          <datasources>
+            <datasource caption='COVID-19-Activity' name='federated.17sswvx0wodli61d75mf017bwqjs' />
+          </datasources>
+          <mapsources>
+            <mapsource name='Tableau' />
+          </mapsources>
+          <datasource-dependencies datasource='federated.17sswvx0wodli61d75mf017bwqjs'>
+            <column caption='Country Short Name' datatype='string' name='[COUNTRY_SHORT_NAME]' role='dimension' semantic-role='[Country].[ISO3166_2]' type='nominal' />
+            <column caption='Date is Max' datatype='boolean' name='[Calculation_2088825828284801025]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[Min Date (copy)_1618621879475580949] = [REPORT_DATE]&#10;&#10;//Used to report on the latest day of data. Use when using &#10;//Cumulative numbers to only show the most recent' />
+            </column>
+            <column caption='Date is Less than or Equal to US date' datatype='boolean' name='[Calculation_2159405703137574913]' role='dimension' type='nominal'>
+              <calculation class='tableau' formula='[REPORT_DATE] &lt;= [Max Date (copy)_2159405703137103872]&#10;&#10;// The US data is one day behing the Global data as they come &#10;//from two different sources.  &#10;//This filter enures we are reporting based on the Max US date' />
+            </column>
+            <column caption='Max Date for US' datatype='date' name='[Max Date (copy)_2159405703137103872]' role='dimension' type='ordinal'>
+              <calculation class='tableau' formula='{&#10;MAX(IF [COUNTRY_SHORT_NAME]= &quot;United States&quot; THEN[REPORT_DATE] END)&#10;}' />
+            </column>
+            <column caption='Max Date' datatype='date' name='[Min Date (copy)_1618621879475580949]' role='dimension' type='ordinal'>
+              <calculation class='tableau' formula='{MAX([REPORT_DATE])}' />
+            </column>
+            <column caption='People Death Count' datatype='integer' name='[PEOPLE_DEATH_COUNT]' role='measure' type='quantitative' />
+            <column caption='People Death New Count' datatype='integer' name='[PEOPLE_DEATH_NEW_COUNT]' role='measure' type='quantitative' />
+            <column caption='People Positive Cases Count' datatype='integer' name='[PEOPLE_POSITIVE_CASES_COUNT]' role='measure' type='quantitative' />
+            <column caption='People Positive New Cases Count' datatype='integer' name='[PEOPLE_POSITIVE_NEW_CASES_COUNT]' role='measure' type='quantitative' />
+            <column caption='Report Date' datatype='date' name='[REPORT_DATE]' role='dimension' type='ordinal' />
+            <column-instance column='[COUNTRY_SHORT_NAME]' derivation='None' name='[none:COUNTRY_SHORT_NAME:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Calculation_2088825828284801025]' derivation='None' name='[none:Calculation_2088825828284801025:nk]' pivot='key' type='nominal' />
+            <column-instance column='[Calculation_2159405703137574913]' derivation='None' name='[none:Calculation_2159405703137574913:nk]' pivot='key' type='nominal' />
+            <column-instance column='[PEOPLE_DEATH_COUNT]' derivation='Sum' name='[sum:PEOPLE_DEATH_COUNT:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[PEOPLE_DEATH_NEW_COUNT]' derivation='Sum' name='[sum:PEOPLE_DEATH_NEW_COUNT:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[PEOPLE_POSITIVE_CASES_COUNT]' derivation='Sum' name='[sum:PEOPLE_POSITIVE_CASES_COUNT:qk]' pivot='key' type='quantitative' />
+            <column-instance column='[PEOPLE_POSITIVE_NEW_CASES_COUNT]' derivation='Sum' name='[sum:PEOPLE_POSITIVE_NEW_CASES_COUNT:qk]' pivot='key' type='quantitative' />
+          </datasource-dependencies>
+          <filter class='categorical' column='[federated.17sswvx0wodli61d75mf017bwqjs].[none:Calculation_2088825828284801025:nk]'>
+            <groupfilter function='member' level='[none:Calculation_2088825828284801025:nk]' member='true' user:ui-domain='relevant' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <filter class='categorical' column='[federated.17sswvx0wodli61d75mf017bwqjs].[none:Calculation_2159405703137574913:nk]'>
+            <groupfilter function='member' level='[none:Calculation_2159405703137574913:nk]' member='true' user:ui-domain='database' user:ui-enumeration='inclusive' user:ui-marker='enumerate' />
+          </filter>
+          <slices>
+            <column>[federated.17sswvx0wodli61d75mf017bwqjs].[none:Calculation_2159405703137574913:nk]</column>
+            <column>[federated.17sswvx0wodli61d75mf017bwqjs].[none:Calculation_2088825828284801025:nk]</column>
+          </slices>
+          <aggregation value='true' />
+        </view>
+        <style>
+          <style-rule element='axis'>
+            <encoding attr='space' class='0' field='[federated.17sswvx0wodli61d75mf017bwqjs].[Longitude (generated)]' field-type='quantitative' max='19084823.789714921' min='-14318122.715417547' projection='EPSG:3857' range-type='fixed' scope='cols' type='space' />
+            <encoding attr='space' class='0' field='[federated.17sswvx0wodli61d75mf017bwqjs].[Latitude (generated)]' field-type='quantitative' max='15402883.358377984' min='-9008000.9918858409' projection='EPSG:3857' range-type='fixed' scope='rows' type='space' />
+          </style-rule>
+          <style-rule element='mark'>
+            <encoding attr='color' field='[federated.17sswvx0wodli61d75mf017bwqjs].[sum:PEOPLE_DEATH_COUNT:qk]' num-steps='6' palette='red_green_diverging_10_0' reverse='true' symmetric='false' type='interpolated' />
+          </style-rule>
+          <style-rule element='map'>
+            <format attr='washout' value='0.0' />
+          </style-rule>
+        </style>
+        <panes>
+          <pane selection-relaxation-option='selection-relaxation-allow'>
+            <view>
+              <breakdown value='auto' />
+            </view>
+            <mark class='Automatic' />
+            <mark-sizing mark-sizing-setting='marks-scaling-off' />
+            <encodings>
+              <size column='[federated.17sswvx0wodli61d75mf017bwqjs].[sum:PEOPLE_POSITIVE_CASES_COUNT:qk]' />
+              <lod column='[federated.17sswvx0wodli61d75mf017bwqjs].[none:COUNTRY_SHORT_NAME:nk]' />
+              <tooltip column='[federated.17sswvx0wodli61d75mf017bwqjs].[sum:PEOPLE_DEATH_NEW_COUNT:qk]' />
+              <tooltip column='[federated.17sswvx0wodli61d75mf017bwqjs].[sum:PEOPLE_DEATH_COUNT:qk]' />
+              <tooltip column='[federated.17sswvx0wodli61d75mf017bwqjs].[sum:PEOPLE_POSITIVE_CASES_COUNT:qk]' />
+              <tooltip column='[federated.17sswvx0wodli61d75mf017bwqjs].[sum:PEOPLE_POSITIVE_NEW_CASES_COUNT:qk]' />
+            </encodings>
+            <style>
+              <style-rule element='mark'>
+                <format attr='size' value='3.5248618125915527' />
+                <format attr='mark-labels-cull' value='true' />
+                <format attr='mark-labels-show' value='false' />
+              </style-rule>
+            </style>
+          </pane>
+        </panes>
+        <rows>[federated.17sswvx0wodli61d75mf017bwqjs].[Latitude (generated)]</rows>
+        <cols>[federated.17sswvx0wodli61d75mf017bwqjs].[Longitude (generated)]</cols>
+      </table>
+      <simple-id uuid='{2B79C162-04EE-43D7-9D58-80B9D0FA820C}' />
+    </worksheet>
+  </worksheets>
+  <windows source-height='30'>
+    <window class='worksheet' maximized='true' name='Sheet 1'>
+      <cards>
+        <edge name='left'>
+          <strip size='237'>
+            <card type='pages' />
+            <card type='filters' />
+            <card type='marks' />
+          </strip>
+        </edge>
+        <edge name='top'>
+          <strip size='2147483647'>
+            <card type='columns' />
+          </strip>
+          <strip size='2147483647'>
+            <card type='rows' />
+          </strip>
+          <strip size='31'>
+            <card type='title' />
+          </strip>
+        </edge>
+        <edge name='right'>
+          <strip size='160'>
+            <card param='[federated.17sswvx0wodli61d75mf017bwqjs].[none:Calculation_2088825828284801025:nk]' type='filter' />
+            <card param='[federated.17sswvx0wodli61d75mf017bwqjs].[none:Calculation_2159405703137574913:nk]' type='filter' />
+          </strip>
+        </edge>
+      </cards>
+      <viewpoint>
+        <highlight>
+          <color-one-way>
+            <field>[federated.17sswvx0wodli61d75mf017bwqjs].[none:COUNTRY_ALPHA_2_CODE:nk]</field>
+            <field>[federated.17sswvx0wodli61d75mf017bwqjs].[none:COUNTRY_SHORT_NAME:nk]</field>
+            <field>[federated.17sswvx0wodli61d75mf017bwqjs].[none:COUNTY_NAME:nk]</field>
+            <field>[federated.17sswvx0wodli61d75mf017bwqjs].[none:Calculation_2088825828284801025:nk]</field>
+            <field>[federated.17sswvx0wodli61d75mf017bwqjs].[none:Calculation_2159405703137574913:nk]</field>
+            <field>[federated.17sswvx0wodli61d75mf017bwqjs].[none:Calculation_499899578302754816:qk]</field>
+            <field>[federated.17sswvx0wodli61d75mf017bwqjs].[none:Calculation_499899578305044484:nk]</field>
+            <field>[federated.17sswvx0wodli61d75mf017bwqjs].[none:REPORT_DATE:qk]</field>
+          </color-one-way>
+        </highlight>
+      </viewpoint>
+      <simple-id uuid='{10E25518-5A42-422E-8624-02EEB471D885}' />
+    </window>
+  </windows>
+</workbook>

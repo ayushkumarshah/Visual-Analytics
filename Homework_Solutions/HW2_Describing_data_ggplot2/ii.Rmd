@@ -1,0 +1,275 @@
+---
+# This is a sample homework ii file. You need to do more than this for full credit.
+# At least you should fill in all the places with parentheses for a B and use your imagination to add more for an A.
+# render this file by saying
+#   library(rmarkdown)
+#   render("ii.Rmd",pdf_document(latex_engine="xelatex"))
+# at the R console
+title: 'homework ii'
+author: 'Ayush Kumar Shah'
+date: '2020-09-11'
+output:
+    pdf_document:
+        latex_engine: xelatex
+header-includes:
+  \usepackage{booktabs}
+---
+
+```{r echo=FALSE}
+# This chunk is just to make it possible to shrink the typeface in succeeding chunks. Mainly this will be used for the crosstabs.
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+```
+ 
+
+# Introduction
+In this report, we will create different visualizations on the nyc311 data using
+the open-source R package `ggplot2`, from CRAN. `ggplot2` is a written 
+implementation of the layered grammar of graphics concept by Wickham. We will 
+explore the concepts of layered grammar of graphics through various examples of
+the use of ggplot2 library to build higher level tools for data analysis. 
+We will be mainly dealing with the following major components of the layered 
+grammar:
+
+1. Layers
+  - Data and mapping
+  - Statistical Transformation
+  - Geometric Object
+  - Position Adjustment
+2. Scales
+3. Coordinate System
+4. Faceting
+
+These components allow us to completely and explicitly describe a wide range of 
+graphics.
+
+# Initialization
+Here we load the tidyverse packages and the `data.table` package and load the 
+nyc311 data set. Then we fix the column names of the nyc311 data so that they 
+have no spaces.
+
+```{r initialize}
+library(tidyverse)
+library(data.table)
+# fast for when you are starting out:
+# nyc311<-fread("311_Service_Requests_from_2010_to_Present.csv",nrow=10000)
+# after you get going:
+nyc311<-fread("311_Service_Requests_from_2010_to_Present.csv")
+names(nyc311)<-names(nyc311) %>%
+  stringr::str_replace_all("\\s", ".")
+```
+
+# Description
+Here we describe the data, showing both a sample and a data dictionary.
+
+## The head of the table
+Here we produce a table of just some relevant columns of data.
+
+```{r tabulate, results="asis"}
+library(xtable)
+options(xtable.comment=FALSE)
+options(xtable.booktabs=TRUE)
+narrow<-nyc311 %>%
+  select(Agency,
+	 Complaint.Type,
+	 Descriptor,
+	 Incident.Zip,
+	 Status,
+	 Borough)
+xtable(head(narrow))
+```
+
+## Data Dictionary
+
+### First dropping the irrelevant columns
+
+```{r drop}
+nyc311 <- subset(nyc311, select = c(1:4, 6:9, 20, 24:26, 40, 50:52 ))
+```
+
+### Building the data dictionary
+
+```{r dict, results="asis"}
+var_desc <- c("Unique identifier of a Service Request (SR) in the open data set", 
+              "Date Service Request (SR) was created", 
+              "Date SR was closed by responding agency",
+              "Acronym of responding City Government Agency",
+              "	This is the first level of a hierarchy identifying the topic \n of the incident or condition. Complaint Type may have a corresponding Descriptor (below) or may stand alone.",
+              "This is associated to the Complaint Type, and provides further detail on the incident or condition. Descriptor values are dependent on the Complaint Type, and are not always required in SR.",
+              "Describes the type of location used in the address information",
+              "Incident location zip code, provided by geo validation.",
+              "Status of SR submitted",
+              "Provided by the submitter and confirmed by geovalidation.",
+              "Geo validated, X coordinate of the incident location.",
+              "Geo validated, Y coordinate of the incident location.",
+              "If the incident is a taxi, this field describes the type of TLC vehicle.",
+              "Geo based Lat of the incident location",
+              "Geo based Long of the incident location",
+              "Combination of the geo based lat & long of the incident location")
+
+text <- "Plain text"
+num <- "Number"
+date <- "Date and Time"
+var_type <- c(text, date, date, text, text, text, text, text, text, text, 
+              num, num, text, num, num, "Location")
+data_dict <- data.frame("Field Name" = names(nyc311), 
+                        "Variable Description" = var_desc, 
+                        "Variable Type" = var_type)
+xtable(data_dict)
+```
+
+# Exploration
+Here we explore the columns in the data set.
+
+## Largest Responding City Government Agencies
+We find out the city government agencies that have responded to more than 1000
+Service Requests (SR) with the number of SR in an increasing order using bar
+chart.
+
+```{r explore}
+bigAgency <- narrow %>%
+  group_by(Agency) %>%
+  summarize(count=n()) %>%
+  filter(count>1000)
+bigAgency$Agency<-factor(bigAgency$Agency,
+  levels=bigAgency$Agency[order(bigAgency$count)])
+p<-ggplot(bigAgency,aes(x=Agency,y=count)) +
+   geom_bar(stat="identity") +
+   coord_flip()
+p
+```
+
+
+## Status of Complaints across Boroughs
+We plot the different status of complaints and how it vaires across different
+Boroughs.
+
+```{r Status_plot}
+s1 <- ggplot(narrow) +
+      geom_bar(mapping = aes(Status, fill = Borough), position="fill") +
+      coord_flip() +
+      ggtitle("Status of SR Submitted across Boroughs")
+
+s2 <- ggplot(narrow) +
+  geom_bar(mapping = aes(Status, fill = Borough), show.legend = FALSE) +
+  coord_flip()
+
+if (!require(gridExtra)) {
+install.packages("gridExtra",dependencies=TRUE)
+library(gridExtra)
+}
+grid.arrange(s1, s2, nrow = 2)
+```
+
+
+## Top complaint types
+
+```{r Top_complaints_plot}
+top_complaints <- narrow %>%
+  group_by(Complaint.Type) %>%
+  summarize(count=n()) %>%
+  filter(count>200000)
+
+top_complaints$Complaint.Type <- factor(top_complaints$Complaint.Type,
+          levels=top_complaints$Complaint.Type[order(top_complaints$count)])
+
+t <- ggplot(top_complaints,aes(Complaint.Type,count, fill=Complaint.Type)) +
+  geom_bar(stat="identity", show.legend = FALSE) +
+  coord_polar() +
+  xlab("Complaint Type") +
+  ggtitle("Common complaint types")
+
+t
+```
+
+
+## Complaint types
+
+```{r complaint_types}
+complaint_types <- narrow %>%
+  group_by(Complaint.Type, Borough) %>%
+  summarize(Complaints = length(Complaint.Type)) %>%
+  filter(Complaints>100000)
+
+ct <- ggplot(complaint_types) + 
+  geom_bar(stat="identity", aes(x=Complaint.Type, y=Complaints, 
+                                fill=Complaint.Type),
+           show.legend = FALSE) + 
+  facet_wrap(~ Borough) +
+  coord_flip() +
+  xlab("Complaint Type") +
+  ggtitle("Top Complaints by Type in different Boroughs")
+
+ct
+```
+  
+
+## Response time
+```{r response}
+df<-nyc311 %>%
+  select(Agency,
+         Complaint.Type,
+         Descriptor,
+         Incident.Zip,
+         Status,
+         Borough,
+         Created.Date,
+         Closed.Date)
+df$Response.Time.hrs <- as.numeric(difftime(as.Date(as.character(df$Closed.Date), 
+                                              format="%m/%d/%Y %H:%M:%S %p"), 
+                                      as.Date(as.character(df$Created.Date), 
+                                              format="%m/%d/%Y %H:%M:%S %p")
+                                      , units = "hours")) 
+
+df <- df[df$Response.Time.hrs > 0]
+cat("Average response time = ", mean(df$Response.Time.hrs) %/% 24 , "days")
+```
+
+## Cross tabulations
+
+Next we include a crosstabulation.
+
+### 1. Borough and Complaint Type
+
+```{r crosstabs1, size='footnotesize'}
+xtabA<-dplyr::filter(narrow,
+  Complaint.Type=='HEATING' |
+  Complaint.Type=='GENERAL CONSTRUCTION' |
+  Complaint.Type=='PLUMBING'
+)
+xtabB<-select(xtabA,Borough,"Complaint.Type")
+library(gmodels)
+CrossTable(xtabB$Borough,xtabB$'Complaint.Type')
+```
+
+A summary table will be generated with cell row, column and table proportions 
+and marginal totals and proportions.
+
+### 2. Borough and Status
+
+```{r crosstabs2, size='footnotesize'}
+filtered_status<-dplyr::filter(narrow,
+                       Status=='Closed' |
+                       Status=='Open' |
+                       Status=='Pending'
+)
+CrossTable(filtered_status$Borough, filtered_status$Status)
+```
+
+
+### 3. Status and Complaint Type
+
+```{r crosstabs3, size='footnotesize'}
+xtabC<-select(xtabA,Status,Complaint.Type)
+CrossTable(xtabC$Status, xtabC$Complaint.Type)
+```
+
+# Conclusion
+So, we learned how to visualize the `nyc311` data using ggplot2. We applied 
+and understood different components of layered grammar of graphics like 
+data and aesthetic mappings, facets, geometric objects, statistical 
+transformations, position arguments and coordinates transformation using the 
+`nyc311` data as an example. 

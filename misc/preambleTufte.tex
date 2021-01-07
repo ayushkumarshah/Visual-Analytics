@@ -1,0 +1,26 @@
+\usepackage{booktabs,unicode-math}
+\usepackage{fontspec}
+\setmainfont[Mapping=tex-text,Numbers=OldStyle]{Bembo Std}
+\setsansfont[Mapping=tex-text,Numbers=OldStyle,Scale=MatchLowercase]{Gill Sans Std}
+\setmathfont[Mapping=tex-text, Numbers=OldStyle, Scale=MatchLowercase]{TeX Gyre Pagella Math}
+\setmonofont[Mapping=tex-text,Scale=MatchLowercase]{Source Code Pro}
+
+\makeatletter
+% Paragraph indentation and separation for normal text
+\renewcommand{\@tufte@reset@par}{%
+    \setlength{\RaggedRightParindent}{0.0pc}%
+    \setlength{\JustifyingParindent}{0.0pc}%
+    \setlength{\parindent}{0pc}%
+    \setlength{\parskip}{8pt}%
+}
+\@tufte@reset@par
+% Paragraph indentation and separation for marginal text
+\renewcommand{\@tufte@margin@par}{%
+    \setlength{\RaggedRightParindent}{0.5pc}%
+    \setlength{\JustifyingParindent}{0.5pc}%
+    \setlength{\parindent}{0.5pc}%
+    \setlength{\parskip}{0pt}%
+}
+\makeatother
+\usepackage{pagecolor}
+\pagecolor{yellow!5!white}

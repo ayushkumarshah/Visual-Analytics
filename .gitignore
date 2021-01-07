@@ -4,6 +4,7 @@
 
 # Session Data files
 .RData
+.RDataTemp
 
 # User-specific files
 .Ruserdata
@@ -37,3 +38,16 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# Videos
+videos/*
+
+# Large books
+books/Garner2009.pdf
+
+# Large data
+*.csv
+*.mp4
+
+
+.DS_Store
